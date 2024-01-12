@@ -1,7 +1,142 @@
 'use strict';
 
-let pokemonData = [];
+//-------GLOBAL VARIABLES ----------------------------------------------------
+//----------------------------------------------------------------------------
+let globalPokemonData = [];
 let pokemonNumIDArr = [];
+let pokemonQuestionsArr = [];
+
+//------CLASSES and OBJECTS --------------------------------------------------
+//----------------------------------------------------------------------------
+class Question {
+  constructor(number, questionWorth, pokeData) {
+    this.number = number;
+    this.questionWorth = questionWorth;
+    this.pokeData = pokeData;
+  }
+
+  get answers() {
+    return this._answers;
+  }
+
+  set answers(pokeData) {
+    this.answers = [];
+
+    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
+    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
+    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
+  }
+
+  get questionPrompt() {
+    return this._questionPrompt;
+  }
+
+  set questionPrompt(pokeData) {
+    //will set the question based on the pokemon data
+  }
+}
+
+class pictureQuestion extends Question {
+  constructor(number, questionWorth, pokeData) {
+    super(number, questionWorth, pokeData);
+  }
+  get answers() {
+    return this._answers;
+  }
+
+  set answers(pokeData) {
+    this._answers = [
+      {
+        answer: pokeData.name,
+        isCorrect: true,
+      },
+    ];
+    const incorrectPokeDataArr = [...globalPokemonData].filter(
+      data => data.name !== pokeData.name
+    );
+    const randomIndices = makeThreeRandomIndicesArray();
+    randomIndices.forEach(index => {
+      const incorrectAnswerObj = {
+        isCorrect: false,
+      };
+      incorrectAnswerObj.answer = incorrectPokeDataArr[index].name;
+      this._answers.push(incorrectAnswerObj);
+    });
+    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
+    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
+    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
+  }
+
+  get questionPrompt() {
+    return this._questionPrompt;
+  }
+
+  set questionPrompt(pokeData) {
+    this._questionPrompt =
+      'What is the name of the pokemon presented in the image above?';
+  }
+}
+
+class typeQuestion extends Question {
+  constructor(number, questionWorth, pokeData) {
+    super(number, questionWorth, pokeData);
+  }
+  get answers() {
+    return this._answers;
+  }
+
+  set answers(pokeData) {
+    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
+    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
+    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
+  }
+
+  get questionPrompt() {
+    return this._questionPrompt;
+  }
+
+  set questionPrompt(pokeData) {
+    //...
+  }
+}
+
+class abilitiesQuestion extends Question {
+  constructor(number, questionWorth, pokeData) {
+    super(number, questionWorth, pokeData);
+  }
+  get answers() {
+    return this._answers;
+  }
+
+  set answers(pokeData) {
+    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
+    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
+    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
+  }
+
+  get questionPrompt() {
+    return this._questionPrompt;
+  }
+
+  set questionPrompt(pokeData) {
+    //...
+  }
+}
+
+function createQuestions(pokemonDataArr) {
+  pokemonDataArr.forEach((data, i) => {
+    if (i < 3) {
+      const question = new pictureQuestion(1, 100, globalPokemonData[i]);
+      question.questionPrompt = globalPokemonData[i];
+      question.answers = globalPokemonData[i];
+      pokemonQuestionsArr.push(question);
+      console.log(pokemonQuestionsArr);
+    }
+  });
+}
+
+//------------ASYNC FUNCTIONS ------------------------------------------------
+//----------------------------------------------------------------------------
 
 //grabs info from the pokeAPI regarding a single pokemon
 async function getSinglePokeData(num) {
@@ -25,7 +160,7 @@ async function makePokemonDataArray(pokemonIDarr) {
     const promiseArray = pokemonIDarr.map(async function (pokemonID) {
       return getSinglePokeData(pokemonID);
     });
-    //Promise.allSettled returns an array of all the fulfilled data (or unfufilled data) from the promiseArray above
+    //Promise.allSettled returns an array of all the fulfilled data (or unfufilled data) from the promiseArray above. Then the fulfilled values are mapped out and stored in pokemonDataValues
     const pokemonDataArr = await Promise.allSettled(promiseArray);
     const pokemonDataValues = pokemonDataArr.map(pokeData => pokeData.value);
     return pokemonDataValues;
@@ -36,6 +171,10 @@ async function makePokemonDataArray(pokemonIDarr) {
   }
 }
 
+//-------------------OTHER FUNCTIONS -----------------------------------------
+//----------------------------------------------------------------------------
+
+//sets the PokemonNumIDArr
 function setPokemonNumIDArr(chosenRegion) {
   let min = 0;
   let max = 0;
@@ -68,7 +207,17 @@ function setPokemonNumIDArr(chosenRegion) {
   }
 }
 
-//--------------------TESTING------------------------------
+function makeThreeRandomIndicesArray() {
+  const randomIndicesArr = [];
+  for (let i = 0; i < 3; i++) {
+    let num = Math.floor(Math.random() * 14);
+    randomIndicesArr.push(num);
+  }
+  return randomIndicesArr;
+}
+
+//--------------------CODE EXECUTION AND TESTING------------------------------
+//----------------------------------------------------------------------------
 //test to see if the function above works for a single pokemon
 // getSinglePokeData(2).then(res => console.log(res));
 
@@ -76,8 +225,12 @@ function setPokemonNumIDArr(chosenRegion) {
 setPokemonNumIDArr('johto');
 console.log(pokemonNumIDArr);
 makePokemonDataArray(pokemonNumIDArr).then(pokemonDataValues => {
-  pokemonData = [...pokemonDataValues];
-  console.log(pokemonData);
+  globalPokemonData = [...pokemonDataValues];
+  console.log(globalPokemonData);
+  const question1 = new pictureQuestion(1, 100, globalPokemonData[0]);
+  question1.answers = globalPokemonData[0];
+  question1.questionPrompt = globalPokemonData[0];
+  console.log(question1);
 });
 
 /* TO DO:

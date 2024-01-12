@@ -1,41 +1,24 @@
 'use strict';
 
-//-------GLOBAL VARIABLES ----------------------------------------------------
+//----SECTION 1: GLOBAL VARIABLES ----------------------------------------------------
 //----------------------------------------------------------------------------
 let globalPokemonData = [];
 let pokemonNumIDArr = [];
 let pokemonQuestionsArr = [];
 
-//------CLASSES and OBJECTS --------------------------------------------------
+//---SECTION 2A: CLASSES and OBJECTS --------------------------------------------------
 //----------------------------------------------------------------------------
+
+//BASE QUESTION CLASS
 class Question {
   constructor(number, questionWorth, pokeData) {
     this.number = number;
     this.questionWorth = questionWorth;
     this.pokeData = pokeData;
   }
-
-  get answers() {
-    return this._answers;
-  }
-
-  set answers(pokeData) {
-    this.answers = [];
-
-    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
-    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
-    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
-  }
-
-  get questionPrompt() {
-    return this._questionPrompt;
-  }
-
-  set questionPrompt(pokeData) {
-    //will set the question based on the pokemon data
-  }
 }
 
+//PICTURE QUESTION SUBCLASS
 class pictureQuestion extends Question {
   constructor(number, questionWorth, pokeData) {
     super(number, questionWorth, pokeData);
@@ -43,7 +26,7 @@ class pictureQuestion extends Question {
   get answers() {
     return this._answers;
   }
-
+  //the setter for the answers properties sets answers as an array of four objects with the properties answer (for the answer), and isCorrect (if the answer is correct)
   set answers(pokeData) {
     this._answers = [
       {
@@ -54,7 +37,7 @@ class pictureQuestion extends Question {
     const incorrectPokeDataArr = [...globalPokemonData].filter(
       data => data.name !== pokeData.name
     );
-    const randomIndices = makeThreeRandomIndicesArray();
+    const randomIndices = makeThreeRandomIndicesArray(); //(refer to section 2B for this function)
     randomIndices.forEach(index => {
       const incorrectAnswerObj = {
         isCorrect: false,
@@ -62,21 +45,17 @@ class pictureQuestion extends Question {
       incorrectAnswerObj.answer = incorrectPokeDataArr[index].name;
       this._answers.push(incorrectAnswerObj);
     });
-    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
-    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
-    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
   }
-
   get questionPrompt() {
     return this._questionPrompt;
   }
-
   set questionPrompt(pokeData) {
     this._questionPrompt =
       'What is the name of the pokemon presented in the image above?';
   }
 }
 
+//POKEMON TYPE QUESTION SUBCLASS
 class typeQuestion extends Question {
   constructor(number, questionWorth, pokeData) {
     super(number, questionWorth, pokeData);
@@ -100,6 +79,7 @@ class typeQuestion extends Question {
   }
 }
 
+//POKEMON ABILIITY QUESTION SUBCLASS
 class abilitiesQuestion extends Question {
   constructor(number, questionWorth, pokeData) {
     super(number, questionWorth, pokeData);
@@ -123,6 +103,11 @@ class abilitiesQuestion extends Question {
   }
 }
 
+//------SECTION 2B------------------------------------------------------------------
+//----FUNCTIONS THAT SUPPORT THE CREATION AND IMPLEMENTATION OF QUESTION OBJECTS----
+//----------------------------------------------------------------------------------
+
+//still need to finish
 function createQuestions(pokemonDataArr) {
   pokemonDataArr.forEach((data, i) => {
     if (i < 3) {
@@ -135,8 +120,17 @@ function createQuestions(pokemonDataArr) {
   });
 }
 
-//------------ASYNC FUNCTIONS ------------------------------------------------
-//----------------------------------------------------------------------------
+function makeThreeRandomIndicesArray() {
+  const randomIndicesArr = [];
+  for (let i = 0; i < 3; i++) {
+    let num = Math.floor(Math.random() * 14);
+    randomIndicesArr.push(num);
+  }
+  return randomIndicesArr;
+}
+
+//------SECTION 3: ASYNC FUNCTIONS ----------------------------------------------
+//----------------FOR FETCHING POKEDATA------------------------------------------
 
 //grabs info from the pokeAPI regarding a single pokemon
 async function getSinglePokeData(num) {
@@ -174,10 +168,20 @@ async function makePokemonDataArray(pokemonIDarr) {
 //-------------------OTHER FUNCTIONS -----------------------------------------
 //----------------------------------------------------------------------------
 
+function correctForDuplicatesIfAny(arr, min, max) {
+  let set = new Set(arr);
+  while (set.size < 15) {
+    let num = Math.floor(Math.random() * (max - min) + min);
+    set.add(num);
+  }
+  return [...set];
+}
+
 //sets the PokemonNumIDArr
 function setPokemonNumIDArr(chosenRegion) {
   let min = 0;
   let max = 0;
+
   switch (chosenRegion) {
     case 'kanto':
       min = 1;
@@ -199,21 +203,13 @@ function setPokemonNumIDArr(chosenRegion) {
       min = 0;
       max = 809;
   }
-  console.log(min, max);
 
   for (let i = 0; i <= 14; i++) {
     let num = Math.floor(Math.random() * (max - min) + min);
     pokemonNumIDArr.push(num);
   }
-}
 
-function makeThreeRandomIndicesArray() {
-  const randomIndicesArr = [];
-  for (let i = 0; i < 3; i++) {
-    let num = Math.floor(Math.random() * 14);
-    randomIndicesArr.push(num);
-  }
-  return randomIndicesArr;
+  pokemonNumIDArr = correctForDuplicatesIfAny(pokemonNumIDArr, min, max);
 }
 
 //--------------------CODE EXECUTION AND TESTING------------------------------
@@ -234,6 +230,7 @@ makePokemonDataArray(pokemonNumIDArr).then(pokemonDataValues => {
 });
 
 /* TO DO:
+//figure out how to remove duplicates!
 1) Create all global variables, classes, data needed for the game to properly run
 2) Create the following functions:
     a) Function to reset the game

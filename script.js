@@ -16,6 +16,15 @@ class Question {
     this.questionWorth = questionWorth;
     this.pokeData = pokeData;
   }
+
+  makeThreeRandomIndicesArray() {
+    const randomIndicesArr = [];
+    for (let i = 0; i < 3; i++) {
+      let num = Math.floor(Math.random() * 14);
+      randomIndicesArr.push(num);
+    }
+    return randomIndicesArr;
+  }
 }
 
 //PICTURE QUESTION SUBCLASS
@@ -30,14 +39,14 @@ class pictureQuestion extends Question {
   set answers(pokeData) {
     this._answers = [
       {
-        answer: pokeData.name,
         isCorrect: true,
+        answer: pokeData.name,
       },
     ];
     const incorrectPokeDataArr = [...globalPokemonData].filter(
       data => data.name !== pokeData.name
     );
-    const randomIndices = makeThreeRandomIndicesArray(); //(refer to section 2B for this function)
+    const randomIndices = this.makeThreeRandomIndicesArray(); //(refer to section 2B for this function)
     randomIndices.forEach(index => {
       const incorrectAnswerObj = {
         isCorrect: false,
@@ -57,17 +66,20 @@ class pictureQuestion extends Question {
 
 //POKEMON TYPE QUESTION SUBCLASS
 class typeQuestion extends Question {
+  //prettier-ignore
+  pokemonTypes = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
+
   constructor(number, questionWorth, pokeData) {
     super(number, questionWorth, pokeData);
   }
-  get answers() {
-    return this._answers;
-  }
 
-  set answers(pokeData) {
-    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
-    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
-    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
+  correctForDuplicateAnswers(arr) {
+    let answerSet = new Set(arr);
+    while (answerSet.size < 4) {
+      let num = Math.floor(Math.random() * this.pokemonTypes.length);
+      answerSet.add(this.pokemonTypes[num]);
+    }
+    return [...answerSet];
   }
 
   get questionPrompt() {
@@ -75,7 +87,64 @@ class typeQuestion extends Question {
   }
 
   set questionPrompt(pokeData) {
-    //...
+    this._questionPrompt = `${
+      pokeData.name[0].toUpperCase() + pokeData.name.slice(1)
+    } is what type of Pokemon?`;
+  }
+
+  get answers() {
+    return this._answers;
+  }
+
+  set answers(pokeData) {
+    //local variables to be used later on
+    const incorrectAnswerStringArr = [];
+    let randomIndex1;
+    let randomIndex2;
+
+    //Step 1: Create all of the INCORRECT answers
+    //Note the for loop will run three times, representing that we need three more incorrect answers
+    for (let i = 1; i <= 3; i++) {
+      //The Math.random() <= 0.5 if statement will determine randomly if the incorrect answer will be only of one type or two types (since pokemon can be either one or two types)
+      if (Math.random() <= 0.5) {
+        //the incorrect answer will only be of one type
+        randomIndex1 = Math.floor(Math.random() * 18); //randomIndex from 0-17
+        incorrectAnswerStringArr.push(this.pokemonTypes[randomIndex1]); //An incorrect type will be chosen from this class's pokemonTypes array. This incorrect type is then pushed to an incorrectAnswers array
+      } else {
+        //if Math.random() > 0.5, the incorrect answer will be of two types, requiring two separate  random indices
+        randomIndex1 = Math.floor(Math.random() * 18);
+        randomIndex2 = Math.floor(Math.random() * 18);
+        //the while loop ensures that the two pokemon types chosen at random will be different (i.e. the typing won't be "normal normal" or "ice ice")
+        //prettier-ignore
+        while (this.pokemonTypes[randomIndex1] === this.pokemonTypes[randomIndex2] ) 
+        {
+          randomIndex2 = Math.floor(Math.random() * 18);
+        }
+        //push the answer to the incorrectAnswers array
+        incorrectAnswerStringArr.push(
+          `${this.pokemonTypes[randomIndex1]} ${this.pokemonTypes[randomIndex2]}`
+        );
+      }
+    }
+
+    //Step 2: derive the correct answer from the pokeData object
+    const correctAnswer = pokeData.types.reduce((acc, slot, i) => {
+      return (acc += i === 0 ? `${slot.type.name}` : ` ${slot.type.name}`);
+    }, '');
+
+    //combine the incorrect answers and the correct answer in a single array, then ensure that ALL DUPLICATE ANSWERS ARE TAKEN OUT! the duplicate answers will be replaced with alternate responses and the corrected array will be returned
+    const fullResponseStringArr = this.correctForDuplicateAnswers([
+      correctAnswer,
+      ...incorrectAnswerStringArr,
+    ]);
+
+    //after you get the array of answers, then map those answers into answer objects
+    this._answers = fullResponseStringArr.map(response => {
+      return {
+        isCorrect: response === correctAnswer,
+        answer: response,
+      };
+    });
   }
 }
 
@@ -99,7 +168,9 @@ class abilitiesQuestion extends Question {
   }
 
   set questionPrompt(pokeData) {
-    //...
+    this._questionPrompt = `The pokemon ${
+      pokeData.name[0].toUppercase() + pokeData.name.slice(1)
+    }, presented above, is what of what type or combination of types?`;
   }
 }
 
@@ -118,15 +189,6 @@ function createQuestions(pokemonDataArr) {
       console.log(pokemonQuestionsArr);
     }
   });
-}
-
-function makeThreeRandomIndicesArray() {
-  const randomIndicesArr = [];
-  for (let i = 0; i < 3; i++) {
-    let num = Math.floor(Math.random() * 14);
-    randomIndicesArr.push(num);
-  }
-  return randomIndicesArr;
 }
 
 //------SECTION 3: ASYNC FUNCTIONS ----------------------------------------------
@@ -168,7 +230,7 @@ async function makePokemonDataArray(pokemonIDarr) {
 //-------------------OTHER FUNCTIONS -----------------------------------------
 //----------------------------------------------------------------------------
 
-function correctForDuplicatesIfAny(arr, min, max) {
+function correctForDuplicateIDs(arr, min, max) {
   let set = new Set(arr);
   while (set.size < 15) {
     let num = Math.floor(Math.random() * (max - min) + min);
@@ -209,7 +271,7 @@ function setPokemonNumIDArr(chosenRegion) {
     pokemonNumIDArr.push(num);
   }
 
-  pokemonNumIDArr = correctForDuplicatesIfAny(pokemonNumIDArr, min, max);
+  pokemonNumIDArr = correctForDuplicateIDs(pokemonNumIDArr, min, max);
 }
 
 //--------------------CODE EXECUTION AND TESTING------------------------------
@@ -227,6 +289,10 @@ makePokemonDataArray(pokemonNumIDArr).then(pokemonDataValues => {
   question1.answers = globalPokemonData[0];
   question1.questionPrompt = globalPokemonData[0];
   console.log(question1);
+  const question2 = new typeQuestion(2, 200, globalPokemonData[1]);
+  question2.answers = globalPokemonData[1];
+  question2.questionPrompt = globalPokemonData[1];
+  console.log(question2);
 });
 
 /* TO DO:

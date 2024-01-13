@@ -9,7 +9,7 @@ let pokemonQuestionsArr = [];
 //---SECTION 2A: CLASSES and OBJECTS --------------------------------------------------
 //----------------------------------------------------------------------------
 
-//BASE QUESTION CLASS
+//BASE QUESTION CLASS------
 class Question {
   constructor(number, questionWorth, pokeData) {
     this.number = number;
@@ -20,41 +20,50 @@ class Question {
   makeThreeRandomIndicesArray() {
     const randomIndicesArr = [];
     for (let i = 0; i < 3; i++) {
-      let num = Math.floor(Math.random() * 14);
+      let num = createRandomNumber(0, 14);
       randomIndicesArr.push(num);
     }
     return randomIndicesArr;
   }
+
+  createWrongAnswerPokeDataArray(pokeData) {
+    return [...globalPokemonData].filter(data => data.name !== pokeData.name);
+  }
 }
 
-//PICTURE QUESTION SUBCLASS
+//PICTURE QUESTION SUBCLASS------
 class pictureQuestion extends Question {
   constructor(number, questionWorth, pokeData) {
     super(number, questionWorth, pokeData);
+    this.answers = pokeData;
+    this.questionPrompt = pokeData;
   }
   get answers() {
     return this._answers;
   }
   //the setter for the answers properties sets answers as an array of four objects with the properties answer (for the answer), and isCorrect (if the answer is correct)
   set answers(pokeData) {
-    this._answers = [
-      {
-        isCorrect: true,
-        answer: pokeData.name,
-      },
-    ];
-    const incorrectPokeDataArr = [...globalPokemonData].filter(
-      data => data.name !== pokeData.name
-    );
+    const correctAnswer = {
+      isCorrect: true,
+      answer: capitalizeString(pokeData.name),
+    };
+
+    const incorrectAnswers = [];
+    const wrongAnswerPokeDataArr =
+      this.createWrongAnswerPokeDataArray(pokeData);
     const randomIndices = this.makeThreeRandomIndicesArray(); //(refer to section 2B for this function)
     randomIndices.forEach(index => {
-      const incorrectAnswerObj = {
+      const incorrectAnswer = {
         isCorrect: false,
       };
-      incorrectAnswerObj.answer = incorrectPokeDataArr[index].name;
-      this._answers.push(incorrectAnswerObj);
+      //prettier-ignore
+      incorrectAnswer.answer = capitalizeString(wrongAnswerPokeDataArr[index].name);
+      incorrectAnswers.push(incorrectAnswer);
     });
+
+    this._answers = [correctAnswer, ...incorrectAnswers];
   }
+
   get questionPrompt() {
     return this._questionPrompt;
   }
@@ -64,19 +73,21 @@ class pictureQuestion extends Question {
   }
 }
 
-//POKEMON TYPE QUESTION SUBCLASS
+//POKEMON TYPE QUESTION SUBCLASS-----
 class typeQuestion extends Question {
   //prettier-ignore
-  pokemonTypes = ['normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'];
+  pokemonTypes = ['Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
 
   constructor(number, questionWorth, pokeData) {
     super(number, questionWorth, pokeData);
+    this.questionPrompt = pokeData;
+    this.answers = pokeData;
   }
 
   correctForDuplicateAnswers(arr) {
     let answerSet = new Set(arr);
     while (answerSet.size < 4) {
-      let num = Math.floor(Math.random() * this.pokemonTypes.length);
+      let num = createRandomNumber(0, this.pokemonTypes.length);
       answerSet.add(this.pokemonTypes[num]);
     }
     return [...answerSet];
@@ -87,9 +98,8 @@ class typeQuestion extends Question {
   }
 
   set questionPrompt(pokeData) {
-    this._questionPrompt = `${
-      pokeData.name[0].toUpperCase() + pokeData.name.slice(1)
-    } is what type of Pokemon?`;
+    //prettier-ignore
+    this._questionPrompt = `${capitalizeString(pokeData.name)} is what type of Pokemon?`;
   }
 
   get answers() {
@@ -102,26 +112,24 @@ class typeQuestion extends Question {
     let randomIndex1;
     let randomIndex2;
 
-    //Step 1: Create all of the INCORRECT answers
-    //Note the for loop will run three times, representing that we need three more incorrect answers
+    //The for loop runs three times since three incorrect answers must be generated. The code below randomly decides whether the generated answer is of one or two types, and then randomly selects the types from the class' pokemonTypes array
     for (let i = 1; i <= 3; i++) {
-      //The Math.random() <= 0.5 if statement will determine randomly if the incorrect answer will be only of one type or two types (since pokemon can be either one or two types)
       if (Math.random() <= 0.5) {
-        //the incorrect answer will only be of one type
-        randomIndex1 = Math.floor(Math.random() * 18); //randomIndex from 0-17
+        //SCENARIO: answer will only of one type
+        randomIndex1 = createRandomNumber(0, this.pokemonTypes.length); //randomIndex from 0-17
         incorrectAnswerStringArr.push(this.pokemonTypes[randomIndex1]); //An incorrect type will be chosen from this class's pokemonTypes array. This incorrect type is then pushed to an incorrectAnswers array
       } else {
-        //if Math.random() > 0.5, the incorrect answer will be of two types, requiring two separate  random indices
-        randomIndex1 = Math.floor(Math.random() * 18);
-        randomIndex2 = Math.floor(Math.random() * 18);
-        //the while loop ensures that the two pokemon types chosen at random will be different (i.e. the typing won't be "normal normal" or "ice ice")
+        //SCENARIO: answer will be two types
+        randomIndex1 = createRandomNumber(0, this.pokemonTypes.length);
+        randomIndex2 = createRandomNumber(0, this.pokemonTypes.length);
         //prettier-ignore
-        while (this.pokemonTypes[randomIndex1] === this.pokemonTypes[randomIndex2] ) 
+        while (randomIndex1 === randomIndex2) 
         {
-          randomIndex2 = Math.floor(Math.random() * 18);
+         //while loop ensures that the dual type won't be the same type (ex. ice ice or fire fire)
+          randomIndex2 = createRandomNumber(0, this.pokemonTypes.length);
         }
-        //push the answer to the incorrectAnswers array
         incorrectAnswerStringArr.push(
+          //push the answer to the incorrectAnswers array
           `${this.pokemonTypes[randomIndex1]} ${this.pokemonTypes[randomIndex2]}`
         );
       }
@@ -129,7 +137,10 @@ class typeQuestion extends Question {
 
     //Step 2: derive the correct answer from the pokeData object
     const correctAnswer = pokeData.types.reduce((acc, slot, i) => {
-      return (acc += i === 0 ? `${slot.type.name}` : ` ${slot.type.name}`);
+      return (acc +=
+        i === 0
+          ? `${capitalizeString(slot.type.name)}`
+          : `${capitalizeString(slot.type.name)}`);
     }, '');
 
     //combine the incorrect answers and the correct answer in a single array, then ensure that ALL DUPLICATE ANSWERS ARE TAKEN OUT! the duplicate answers will be replaced with alternate responses and the corrected array will be returned
@@ -152,15 +163,45 @@ class typeQuestion extends Question {
 class abilitiesQuestion extends Question {
   constructor(number, questionWorth, pokeData) {
     super(number, questionWorth, pokeData);
+    this.questionPrompt = pokeData;
+    this.answers = pokeData;
   }
+
+  parsePokemonAbility(pokeData) {
+    return pokeData.abilities.reduce((str, entry) => {
+      return (str += entry.is_hidden
+        ? `(Hidden Ability): ${capitalizeString(entry.ability.name)}`
+        : `${capitalizeString(entry.ability.name)}, `);
+    }, '(Normal Abilities): ');
+  }
+
   get answers() {
     return this._answers;
   }
 
   set answers(pokeData) {
-    //answers will return an ARRAY that has four elements in there, each an object with two properties: answer, isCorrect
-    //(1)Takes in data from a pokemon and stores the correct answer in one of the objects
-    //(2)Utilizes data from the OTHER pokemon (or does whatever other data), and creates three FALSE answers with isCorrect property set to FALSE
+    //grab the correct answer
+    const correctAnswer = {
+      isCorrect: true,
+      answer: this.parsePokemonAbility(pokeData),
+    };
+
+    let incorrectAnswers = [];
+
+    //prettier-ignore
+    const wrongAnswerPokeDataArr = this.createWrongAnswerPokeDataArray(pokeData);
+
+    const randomIndices = this.makeThreeRandomIndicesArray(); //(refer to section 2B for this function)
+    randomIndices.forEach(index => {
+      const incorrectAnswer = {
+        isCorrect: false,
+      };
+      //prettier-ignore
+      incorrectAnswer.answer = this.parsePokemonAbility(wrongAnswerPokeDataArr[index]);
+      incorrectAnswers.push(incorrectAnswer);
+    });
+
+    this._answers = [correctAnswer, ...incorrectAnswers];
   }
 
   get questionPrompt() {
@@ -168,9 +209,9 @@ class abilitiesQuestion extends Question {
   }
 
   set questionPrompt(pokeData) {
-    this._questionPrompt = `The pokemon ${
-      pokeData.name[0].toUppercase() + pokeData.name.slice(1)
-    }, presented above, is what of what type or combination of types?`;
+    this._questionPrompt = `${capitalizeString(
+      pokeData.name
+    )} can have which of the following sets of abilities?`;
   }
 }
 
@@ -213,7 +254,7 @@ async function getSinglePokeData(num) {
 async function makePokemonDataArray(pokemonIDarr) {
   try {
     //creates an array of promises. Each promise is obtained from the getSinglePokeData function, which fetches the data about a single pokemon. Exactly which pokemon it fetches data about is derived off each pokemonID in the passed pokemonIDarr
-    const promiseArray = pokemonIDarr.map(async function (pokemonID) {
+    const promiseArray = pokemonIDarr.map(function (pokemonID) {
       return getSinglePokeData(pokemonID);
     });
     //Promise.allSettled returns an array of all the fulfilled data (or unfufilled data) from the promiseArray above. Then the fulfilled values are mapped out and stored in pokemonDataValues
@@ -233,7 +274,7 @@ async function makePokemonDataArray(pokemonIDarr) {
 function correctForDuplicateIDs(arr, min, max) {
   let set = new Set(arr);
   while (set.size < 15) {
-    let num = Math.floor(Math.random() * (max - min) + min);
+    let num = createRandomNumber(min, max);
     set.add(num);
   }
   return [...set];
@@ -262,16 +303,24 @@ function setPokemonNumIDArr(chosenRegion) {
       max = 493;
       break;
     default:
-      min = 0;
+      min = 1;
       max = 809;
   }
 
   for (let i = 0; i <= 14; i++) {
-    let num = Math.floor(Math.random() * (max - min) + min);
+    let num = createRandomNumber(min, max);
     pokemonNumIDArr.push(num);
   }
 
   pokemonNumIDArr = correctForDuplicateIDs(pokemonNumIDArr, min, max);
+}
+
+function capitalizeString(string) {
+  return string[0].toUpperCase() + string.slice(1);
+}
+
+function createRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
 }
 
 //--------------------CODE EXECUTION AND TESTING------------------------------
@@ -280,19 +329,17 @@ function setPokemonNumIDArr(chosenRegion) {
 // getSinglePokeData(2).then(res => console.log(res));
 
 //test to see if the pokemonData is able to be set.
-setPokemonNumIDArr('johto');
+setPokemonNumIDArr();
 console.log(pokemonNumIDArr);
 makePokemonDataArray(pokemonNumIDArr).then(pokemonDataValues => {
   globalPokemonData = [...pokemonDataValues];
-  console.log(globalPokemonData);
   const question1 = new pictureQuestion(1, 100, globalPokemonData[0]);
-  question1.answers = globalPokemonData[0];
-  question1.questionPrompt = globalPokemonData[0];
-  console.log(question1);
   const question2 = new typeQuestion(2, 200, globalPokemonData[1]);
-  question2.answers = globalPokemonData[1];
-  question2.questionPrompt = globalPokemonData[1];
+  const question3 = new abilitiesQuestion(3, 300, globalPokemonData[2]);
+  console.log(globalPokemonData);
+  console.log(question1);
   console.log(question2);
+  console.log(question3);
 });
 
 /* TO DO:
@@ -302,3 +349,7 @@ makePokemonDataArray(pokemonNumIDArr).then(pokemonDataValues => {
     a) Function to reset the game
     b) Function to update the UI
     c) Function to render data into the divs WHEN the data is fetched. */
+
+// fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonNumIDArr[0]}/`)
+//   .then(res => res.json())
+//   .then(res => console.log(res));

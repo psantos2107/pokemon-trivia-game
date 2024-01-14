@@ -6,14 +6,11 @@ let globalPokemonData = [];
 let pokemonNumIDArr = [];
 let pokemonQuestionsArr = [];
 
-//---SECTION 2A: CLASSES and OBJECTS --------------------------------------------------
-//----------------------------------------------------------------------------
+//---SECTION 2A: CLASSES and OBJECTS ----------------------------------------------------------------------------
 
 //BASE QUESTION CLASS------
 class Question {
-  constructor(number, questionWorth, pokeData) {
-    this.number = number;
-    this.questionWorth = questionWorth;
+  constructor(pokeData) {
     this.pokeData = pokeData;
   }
 
@@ -21,6 +18,9 @@ class Question {
     const randomIndicesArr = [];
     for (let i = 0; i < 3; i++) {
       let num = createRandomNumber(0, 14);
+      while (randomIndicesArr.some(index => num === index)) {
+        num = createRandomNumber(0, 14);
+      }
       randomIndicesArr.push(num);
     }
     return randomIndicesArr;
@@ -29,57 +29,80 @@ class Question {
   createWrongAnswerPokeDataArray(pokeData) {
     return [...globalPokemonData].filter(data => data.name !== pokeData.name);
   }
-}
 
-//PICTURE QUESTION SUBCLASS------
-class pictureQuestion extends Question {
-  constructor(number, questionWorth, pokeData) {
-    super(number, questionWorth, pokeData);
-    this.answers = pokeData;
-    this.questionPrompt = pokeData;
+  capitalizeString(string) {
+    return string[0].toUpperCase() + string.slice(1);
   }
-  get answers() {
-    return this._answers;
-  }
-  //the setter for the answers properties sets answers as an array of four objects with the properties answer (for the answer), and isCorrect (if the answer is correct)
-  set answers(pokeData) {
-    const correctAnswer = {
-      isCorrect: true,
-      answer: capitalizeString(pokeData.name),
-    };
 
-    const incorrectAnswers = [];
-    const wrongAnswerPokeDataArr =
-      this.createWrongAnswerPokeDataArray(pokeData);
-    const randomIndices = this.makeThreeRandomIndicesArray(); //(refer to section 2B for this function)
+  createIncorrectAnswerArray(pokeData, answerFunction) {
+    let incorrectAnswers = [];
+
+    //prettier-ignore
+    const wrongAnswerPokeDataArr = this.createWrongAnswerPokeDataArray(pokeData);
+
+    const randomIndices = this.makeThreeRandomIndicesArray();
     randomIndices.forEach(index => {
       const incorrectAnswer = {
         isCorrect: false,
       };
       //prettier-ignore
-      incorrectAnswer.answer = capitalizeString(wrongAnswerPokeDataArr[index].name);
+      incorrectAnswer.answer = answerFunction(wrongAnswerPokeDataArr[index]);
       incorrectAnswers.push(incorrectAnswer);
     });
+    return incorrectAnswers;
+  }
+}
 
+//POKEMON PICTURE QUESTION SUBCLASS--------------
+class pictureQuestion extends Question {
+  constructor(pokeData) {
+    super(pokeData);
+    this.answers = pokeData;
+    this.questionPrompt = pokeData;
+  }
+
+  //retrives the name of the Pokemon
+  retrievePokemonName(pokeData) {
+    return this.capitalizeString(pokeData.name);
+  }
+
+  //retrives the answer for pictureQuestion
+  get answers() {
+    return this._answers;
+  }
+
+  //sets the answers for pictureQuestion based on the pokeData
+  set answers(pokeData) {
+    const correctAnswer = {
+      isCorrect: true,
+      answer: this.capitalizeString(pokeData.name),
+    };
+    const incorrectAnswers = this.createIncorrectAnswerArray(
+      pokeData,
+      this.retrievePokemonName.bind(this)
+    );
     this._answers = [correctAnswer, ...incorrectAnswers];
   }
 
+  //retrieves the questionPrompt
   get questionPrompt() {
     return this._questionPrompt;
   }
+
+  //sets the questionPrompt based on the pokeData
   set questionPrompt(pokeData) {
     this._questionPrompt =
       'What is the name of the pokemon presented in the image above?';
   }
 }
 
-//POKEMON TYPE QUESTION SUBCLASS-----
+//POKEMON TYPE QUESTION SUBCLASS------------------
 class typeQuestion extends Question {
   //prettier-ignore
   pokemonTypes = ['Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
 
-  constructor(number, questionWorth, pokeData) {
-    super(number, questionWorth, pokeData);
+  constructor(pokeData) {
+    super(pokeData);
     this.questionPrompt = pokeData;
     this.answers = pokeData;
   }
@@ -99,7 +122,7 @@ class typeQuestion extends Question {
 
   set questionPrompt(pokeData) {
     //prettier-ignore
-    this._questionPrompt = `${capitalizeString(pokeData.name)} is what type of Pokemon?`;
+    this._questionPrompt = `${this.capitalizeString(pokeData.name)} is what type of Pokemon?`;
   }
 
   get answers() {
@@ -139,8 +162,8 @@ class typeQuestion extends Question {
     const correctAnswer = pokeData.types.reduce((acc, slot, i) => {
       return (acc +=
         i === 0
-          ? `${capitalizeString(slot.type.name)}`
-          : `${capitalizeString(slot.type.name)}`);
+          ? `${this.capitalizeString(slot.type.name)}`
+          : `${this.capitalizeString(slot.type.name)}`);
     }, '');
 
     //combine the incorrect answers and the correct answer in a single array, then ensure that ALL DUPLICATE ANSWERS ARE TAKEN OUT! the duplicate answers will be replaced with alternate responses and the corrected array will be returned
@@ -159,10 +182,10 @@ class typeQuestion extends Question {
   }
 }
 
-//POKEMON ABILIITY QUESTION SUBCLASS
+//POKEMON ABILIITY QUESTION SUBCLASS-----------
 class abilitiesQuestion extends Question {
-  constructor(number, questionWorth, pokeData) {
-    super(number, questionWorth, pokeData);
+  constructor(pokeData) {
+    super(pokeData);
     this.questionPrompt = pokeData;
     this.answers = pokeData;
   }
@@ -170,8 +193,8 @@ class abilitiesQuestion extends Question {
   parsePokemonAbility(pokeData) {
     return pokeData.abilities.reduce((str, entry) => {
       return (str += entry.is_hidden
-        ? `(Hidden Ability): ${capitalizeString(entry.ability.name)}`
-        : `${capitalizeString(entry.ability.name)}, `);
+        ? `(Hidden Ability): ${this.capitalizeString(entry.ability.name)}`
+        : `${this.capitalizeString(entry.ability.name)}, `);
     }, '(Normal Abilities): ');
   }
 
@@ -186,20 +209,10 @@ class abilitiesQuestion extends Question {
       answer: this.parsePokemonAbility(pokeData),
     };
 
-    let incorrectAnswers = [];
-
-    //prettier-ignore
-    const wrongAnswerPokeDataArr = this.createWrongAnswerPokeDataArray(pokeData);
-
-    const randomIndices = this.makeThreeRandomIndicesArray(); //(refer to section 2B for this function)
-    randomIndices.forEach(index => {
-      const incorrectAnswer = {
-        isCorrect: false,
-      };
-      //prettier-ignore
-      incorrectAnswer.answer = this.parsePokemonAbility(wrongAnswerPokeDataArr[index]);
-      incorrectAnswers.push(incorrectAnswer);
-    });
+    const incorrectAnswers = this.createIncorrectAnswerArray(
+      pokeData,
+      this.parsePokemonAbility.bind(this)
+    );
 
     this._answers = [correctAnswer, ...incorrectAnswers];
   }
@@ -209,9 +222,91 @@ class abilitiesQuestion extends Question {
   }
 
   set questionPrompt(pokeData) {
-    this._questionPrompt = `${capitalizeString(
+    this._questionPrompt = `${this.capitalizeString(
       pokeData.name
     )} can have which of the following sets of abilities?`;
+  }
+}
+
+class statsQuestion extends Question {
+  constructor(pokeData) {
+    super(pokeData);
+    this.questionPrompt = pokeData;
+    this.answers = pokeData;
+  }
+
+  parseBaseStats(pokeData) {
+    return pokeData.stats.reduce((str, entry) => {
+      return (str += `${this.capitalizeString(entry.stat.name)}: ${
+        entry.base_stat
+      } `);
+    }, '');
+  }
+
+  get questionPrompt() {
+    return this._questionPrompt;
+  }
+
+  set questionPrompt(pokeData) {
+    this._questionPrompt = `Which of the following answers displays the correct base stats for the pokemon, ${this.capitalizeString(
+      pokeData.name
+    )}?`;
+  }
+
+  get answers() {
+    return this._answers;
+  }
+
+  set answers(pokeData) {
+    const correctAnswer = {
+      isCorrect: true,
+      answer: this.parseBaseStats(pokeData),
+    };
+
+    const incorrectAnswers = this.createIncorrectAnswerArray(
+      pokeData,
+      this.parseBaseStats.bind(this)
+    );
+
+    this._answers = [correctAnswer, ...incorrectAnswers];
+  }
+}
+
+class heightAndWeightQuestion extends Question {
+  constructor(pokeData) {
+    super(pokeData);
+    this.questionPrompt = pokeData;
+    this.answers = pokeData;
+  }
+  parseHeightAndWeight(pokeData) {
+    //prettier-ignore
+    return `Height: ${(pokeData.height * 0.328084).toFixed(2)} ft, Weight: ${(pokeData.weight * 0.22).toFixed(2)}lbs`;
+  }
+  get questionPrompt() {
+    return this._questionPrompt;
+  }
+
+  set questionPrompt(pokeData) {
+    this._questionPrompt = `Which of the following answers correctly displays the height and weight of ${this.capitalizeString(
+      pokeData.name
+    )}?`;
+  }
+
+  get answers() {
+    return this._answers;
+  }
+
+  set answers(pokeData) {
+    const correctAnswer = {
+      isCorrect: true,
+      answer: this.parseHeightAndWeight(pokeData),
+    };
+    const incorrectAnswers = this.createIncorrectAnswerArray(
+      pokeData,
+      this.parseHeightAndWeight.bind(this)
+    );
+
+    this._answers = [correctAnswer, ...incorrectAnswers];
   }
 }
 
@@ -245,7 +340,7 @@ async function getSinglePokeData(num) {
     return data; //returns the data as the fulfillment value within a Promise
   } catch {
     throw new Error(
-      'Unable to fetch pokemon data... Please reload the page and try again'
+      'Unable to fetch pokemon data... Please reload the page and try again.'
     );
   }
 }
@@ -263,7 +358,7 @@ async function makePokemonDataArray(pokemonIDarr) {
     return pokemonDataValues;
   } catch {
     throw new Error(
-      'Unable to fetch pokemon data... Please reload the page and try again'
+      'Unable to fetch pokemon data... Please reload the page and try again.'
     );
   }
 }
@@ -315,10 +410,6 @@ function setPokemonNumIDArr(chosenRegion) {
   pokemonNumIDArr = correctForDuplicateIDs(pokemonNumIDArr, min, max);
 }
 
-function capitalizeString(string) {
-  return string[0].toUpperCase() + string.slice(1);
-}
-
 function createRandomNumber(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
@@ -331,16 +422,31 @@ function createRandomNumber(min, max) {
 //test to see if the pokemonData is able to be set.
 setPokemonNumIDArr();
 console.log(pokemonNumIDArr);
-makePokemonDataArray(pokemonNumIDArr).then(pokemonDataValues => {
-  globalPokemonData = [...pokemonDataValues];
-  const question1 = new pictureQuestion(1, 100, globalPokemonData[0]);
-  const question2 = new typeQuestion(2, 200, globalPokemonData[1]);
-  const question3 = new abilitiesQuestion(3, 300, globalPokemonData[2]);
-  console.log(globalPokemonData);
-  console.log(question1);
-  console.log(question2);
-  console.log(question3);
-});
+makePokemonDataArray(pokemonNumIDArr)
+  .then(pokemonDataValues => {
+    globalPokemonData = [...pokemonDataValues];
+    for (let i = 0; i < globalPokemonData.length; i++) {
+      let question;
+      if (i < 3) {
+        question = new pictureQuestion(globalPokemonData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 3 && i < 6) {
+        question = new typeQuestion(globalPokemonData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 6 && i < 9) {
+        question = new abilitiesQuestion(globalPokemonData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 9 && i < 12) {
+        question = new statsQuestion(globalPokemonData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 12 && i < 15) {
+        question = new heightAndWeightQuestion(globalPokemonData[i]);
+        pokemonQuestionsArr.push(question);
+      }
+    }
+    console.log(pokemonQuestionsArr);
+  })
+  .catch(err => alert(err.message));
 
 /* TO DO:
 //figure out how to remove duplicates!
@@ -349,7 +455,3 @@ makePokemonDataArray(pokemonNumIDArr).then(pokemonDataValues => {
     a) Function to reset the game
     b) Function to update the UI
     c) Function to render data into the divs WHEN the data is fetched. */
-
-// fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonNumIDArr[0]}/`)
-//   .then(res => res.json())
-//   .then(res => console.log(res));

@@ -1,12 +1,11 @@
 'use strict';
 
 //----SECTION 1: GLOBAL VARIABLES ----------------------------------------------------
-//----------------------------------------------------------------------------
-let globalPokemonData = [];
-let pokemonNumIDArr = [];
-let pokemonQuestionsArr = [];
+let globalPokeData = []; //will contain data for up to 30 different pokemon
+let pokemonNumIDArr = []; //will contain the IDs of the pokemon that will be used to fetch data from pokeAPI
+let pokemonQuestionsArr = []; //will contain questions to be used for the game
 
-//---SECTION 2A: CLASSES and OBJECTS ----------------------------------------------------------------------------
+//---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
 //BASE QUESTION CLASS------
 class Question {
@@ -17,9 +16,9 @@ class Question {
   makeThreeRandomIndicesArray() {
     const randomIndicesArr = [];
     for (let i = 0; i < 3; i++) {
-      let num = createRandomNumber(0, 14);
+      let num = createRandomNumber(0, 29);
       while (randomIndicesArr.some(index => num === index)) {
-        num = createRandomNumber(0, 14);
+        num = createRandomNumber(0, 29);
       }
       randomIndicesArr.push(num);
     }
@@ -27,14 +26,14 @@ class Question {
   }
 
   createWrongAnswerPokeDataArray(pokeData) {
-    return [...globalPokemonData].filter(data => data.name !== pokeData.name);
+    return [...globalPokeData].filter(data => data.name !== pokeData.name);
   }
 
   capitalizeString(string) {
     return string[0].toUpperCase() + string.slice(1);
   }
 
-  createIncorrectAnswerArray(pokeData, answerFunction) {
+  createIncorrectAnswerArray(pokeData, retrieveFunction) {
     let incorrectAnswers = [];
 
     //prettier-ignore
@@ -46,14 +45,14 @@ class Question {
         isCorrect: false,
       };
       //prettier-ignore
-      incorrectAnswer.answer = answerFunction(wrongAnswerPokeDataArr[index]);
+      incorrectAnswer.answer = retrieveFunction(wrongAnswerPokeDataArr[index]);
       incorrectAnswers.push(incorrectAnswer);
     });
     return incorrectAnswers;
   }
 }
 
-//POKEMON PICTURE QUESTION SUBCLASS--------------
+//POKEMON PICTURE QUESTION SUBCLASS---------------------------------
 class pictureQuestion extends Question {
   constructor(pokeData) {
     super(pokeData);
@@ -96,7 +95,7 @@ class pictureQuestion extends Question {
   }
 }
 
-//POKEMON TYPE QUESTION SUBCLASS------------------
+//POKEMON TYPE QUESTION SUBCLASS------------------------------------
 class typeQuestion extends Question {
   //prettier-ignore
   pokemonTypes = ['Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
@@ -129,9 +128,10 @@ class typeQuestion extends Question {
     return this._answers;
   }
 
+  //NOTE: I created the wrong answer objects differently for this specific question compared to the other question types. Thus, I did not implement the inherited "create incorrect answer array" from the Question class
   set answers(pokeData) {
     //local variables to be used later on
-    const incorrectAnswerStringArr = [];
+    const incorrectAnswerStringArr = []; //will hold a string of all incorrect answers
     let randomIndex1;
     let randomIndex2;
 
@@ -139,12 +139,12 @@ class typeQuestion extends Question {
     for (let i = 1; i <= 3; i++) {
       if (Math.random() <= 0.5) {
         //SCENARIO: answer will only of one type
-        randomIndex1 = createRandomNumber(0, this.pokemonTypes.length); //randomIndex from 0-17
+        randomIndex1 = createRandomNumber(0, this.pokemonTypes.length); //create random num from 0-17
         incorrectAnswerStringArr.push(this.pokemonTypes[randomIndex1]); //An incorrect type will be chosen from this class's pokemonTypes array. This incorrect type is then pushed to an incorrectAnswers array
       } else {
         //SCENARIO: answer will be two types
-        randomIndex1 = createRandomNumber(0, this.pokemonTypes.length);
-        randomIndex2 = createRandomNumber(0, this.pokemonTypes.length);
+        randomIndex1 = createRandomNumber(0, this.pokemonTypes.length); //create random num from 0-17
+        randomIndex2 = createRandomNumber(0, this.pokemonTypes.length); //create random num from 0-17
         //prettier-ignore
         while (randomIndex1 === randomIndex2) 
         {
@@ -152,7 +152,7 @@ class typeQuestion extends Question {
           randomIndex2 = createRandomNumber(0, this.pokemonTypes.length);
         }
         incorrectAnswerStringArr.push(
-          //push the answer to the incorrectAnswers array
+          //push the dual type (ex fairy dark, or fire ground) into the incorrect answer string array
           `${this.pokemonTypes[randomIndex1]} ${this.pokemonTypes[randomIndex2]}`
         );
       }
@@ -163,7 +163,7 @@ class typeQuestion extends Question {
       return (acc +=
         i === 0
           ? `${this.capitalizeString(slot.type.name)}`
-          : `${this.capitalizeString(slot.type.name)}`);
+          : ` ${this.capitalizeString(slot.type.name)}`);
     }, '');
 
     //combine the incorrect answers and the correct answer in a single array, then ensure that ALL DUPLICATE ANSWERS ARE TAKEN OUT! the duplicate answers will be replaced with alternate responses and the corrected array will be returned
@@ -172,7 +172,7 @@ class typeQuestion extends Question {
       ...incorrectAnswerStringArr,
     ]);
 
-    //after you get the array of answers, then map those answers into answer objects
+    //after you get the array of answers, then map those answers into answer objects. and store the resulting array of answer objects into this._answers
     this._answers = fullResponseStringArr.map(response => {
       return {
         isCorrect: response === correctAnswer,
@@ -182,7 +182,7 @@ class typeQuestion extends Question {
   }
 }
 
-//POKEMON ABILIITY QUESTION SUBCLASS-----------
+//POKEMON ABILIITY QUESTION SUBCLASS----------------------------
 class abilitiesQuestion extends Question {
   constructor(pokeData) {
     super(pokeData);
@@ -190,7 +190,8 @@ class abilitiesQuestion extends Question {
     this.answers = pokeData;
   }
 
-  parsePokemonAbility(pokeData) {
+  //retrieves the Pokemon's abilities from the "pokeData" argument that will be returned as a string that can be used for the answer property of an answer object
+  retrievePokemonAbility(pokeData) {
     return pokeData.abilities.reduce((str, entry) => {
       return (str += entry.is_hidden
         ? `(Hidden Ability): ${this.capitalizeString(entry.ability.name)}`
@@ -206,14 +207,16 @@ class abilitiesQuestion extends Question {
     //grab the correct answer
     const correctAnswer = {
       isCorrect: true,
-      answer: this.parsePokemonAbility(pokeData),
+      answer: this.retrievePokemonAbility(pokeData),
     };
 
+    //grab all incorrect answers
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
-      this.parsePokemonAbility.bind(this)
+      this.retrievePokemonAbility.bind(this)
     );
 
+    //return all answers as one array
     this._answers = [correctAnswer, ...incorrectAnswers];
   }
 
@@ -235,7 +238,7 @@ class statsQuestion extends Question {
     this.answers = pokeData;
   }
 
-  parseBaseStats(pokeData) {
+  retrieveBaseStats(pokeData) {
     return pokeData.stats.reduce((str, entry) => {
       return (str += `${this.capitalizeString(entry.stat.name)}: ${
         entry.base_stat
@@ -260,28 +263,32 @@ class statsQuestion extends Question {
   set answers(pokeData) {
     const correctAnswer = {
       isCorrect: true,
-      answer: this.parseBaseStats(pokeData),
+      answer: this.retrieveBaseStats(pokeData),
     };
 
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
-      this.parseBaseStats.bind(this)
+      this.retrieveBaseStats.bind(this)
     );
 
     this._answers = [correctAnswer, ...incorrectAnswers];
   }
 }
 
+//-------HEIGHT AND WEIGHT SUBCLASS -------------------------------
 class heightAndWeightQuestion extends Question {
   constructor(pokeData) {
     super(pokeData);
     this.questionPrompt = pokeData;
     this.answers = pokeData;
   }
-  parseHeightAndWeight(pokeData) {
+
+  retrieveHeightAndWeight(pokeData) {
+    //note: the height provided by the pokeAPI was in decimeters. Thus, i converted it to feet within this retrieve method. For weight, I did the same thing, where I converted the weight value in the pokeAPI to lbs within this retrieve method
     //prettier-ignore
     return `Height: ${(pokeData.height * 0.328084).toFixed(2)} ft, Weight: ${(pokeData.weight * 0.22).toFixed(2)}lbs`;
   }
+
   get questionPrompt() {
     return this._questionPrompt;
   }
@@ -299,37 +306,19 @@ class heightAndWeightQuestion extends Question {
   set answers(pokeData) {
     const correctAnswer = {
       isCorrect: true,
-      answer: this.parseHeightAndWeight(pokeData),
+      answer: this.retrieveHeightAndWeight(pokeData),
     };
+
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
-      this.parseHeightAndWeight.bind(this)
+      this.retrieveHeightAndWeight.bind(this)
     );
 
     this._answers = [correctAnswer, ...incorrectAnswers];
   }
 }
 
-//------SECTION 2B------------------------------------------------------------------
-//----FUNCTIONS THAT SUPPORT THE CREATION AND IMPLEMENTATION OF QUESTION OBJECTS----
-//----------------------------------------------------------------------------------
-
-//still need to finish
-function createQuestions(pokemonDataArr) {
-  pokemonDataArr.forEach((data, i) => {
-    if (i < 3) {
-      const question = new pictureQuestion(1, 100, globalPokemonData[i]);
-      question.questionPrompt = globalPokemonData[i];
-      question.answers = globalPokemonData[i];
-      pokemonQuestionsArr.push(question);
-      console.log(pokemonQuestionsArr);
-    }
-  });
-}
-
-//------SECTION 3: ASYNC FUNCTIONS ----------------------------------------------
-//----------------FOR FETCHING POKEDATA------------------------------------------
-
+//------------ASYNC FUNCTIONS (FETCHING POKEAPI DATA)--------------------
 //grabs info from the pokeAPI regarding a single pokemon
 async function getSinglePokeData(num) {
   try {
@@ -352,9 +341,9 @@ async function makePokemonDataArray(pokemonIDarr) {
     const promiseArray = pokemonIDarr.map(function (pokemonID) {
       return getSinglePokeData(pokemonID);
     });
-    //Promise.allSettled returns an array of all the fulfilled data (or unfufilled data) from the promiseArray above. Then the fulfilled values are mapped out and stored in pokemonDataValues
-    const pokemonDataArr = await Promise.allSettled(promiseArray);
-    const pokemonDataValues = pokemonDataArr.map(pokeData => pokeData.value);
+    //Promise.allSettled returns an array of all the fulfilled data from the promiseArray above. Then the fulfilled values are mapped out and stored in pokemonDataValues as an array
+    const globalPokeData = await Promise.allSettled(promiseArray);
+    const pokemonDataValues = globalPokeData.map(pokeData => pokeData.value);
     return pokemonDataValues;
   } catch {
     throw new Error(
@@ -363,88 +352,77 @@ async function makePokemonDataArray(pokemonIDarr) {
   }
 }
 
-//-------------------OTHER FUNCTIONS -----------------------------------------
-//----------------------------------------------------------------------------
-
+//--------FUNCTIONS THAT HELP CREATE THE POKEMON ID ARRAY THAT WILL BE PASSED INTO THE ASYNC FUNCTIONS FOR FETCHING POKEMON DATA --------------------------
 function correctForDuplicateIDs(arr, min, max) {
   let set = new Set(arr);
-  while (set.size < 15) {
+  while (set.size < 30) {
     let num = createRandomNumber(min, max);
     set.add(num);
   }
   return [...set];
 }
 
+function createRandomNumber(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 //sets the PokemonNumIDArr
 function setPokemonNumIDArr(chosenRegion) {
-  let min = 0;
-  let max = 0;
+  let min;
+  let max;
 
   switch (chosenRegion) {
-    case 'kanto':
+    case 'oldschool':
       min = 1;
-      max = 151;
-      break;
-    case 'johto':
-      min = 152;
-      max = 251;
-      break;
-    case 'hoenn':
-      min = 252;
-      max = 386;
-      break;
-    case 'sinnoh':
-      min = 387;
       max = 493;
+      break;
+    case 'newschool':
+      min = 494;
+      max = 809;
       break;
     default:
       min = 1;
       max = 809;
   }
 
-  for (let i = 0; i <= 14; i++) {
+  for (let i = 0; i <= 29; i++) {
     let num = createRandomNumber(min, max);
     pokemonNumIDArr.push(num);
   }
-
   pokemonNumIDArr = correctForDuplicateIDs(pokemonNumIDArr, min, max);
 }
 
-function createRandomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
+//------------ FUNCTION THAT SETS THE POKEMON QUESTIONS ARRAY -----------------------
+function setPokemonQuestionsArr() {
+  for (let i = 0; i < 15; i++) {
+    let question;
+    if (i < 3) {
+      question = new pictureQuestion(globalPokeData[i]);
+      pokemonQuestionsArr.push(question);
+    } else if (i >= 3 && i < 6) {
+      question = new typeQuestion(globalPokeData[i]);
+      pokemonQuestionsArr.push(question);
+    } else if (i >= 6 && i < 9) {
+      question = new abilitiesQuestion(globalPokeData[i]);
+      pokemonQuestionsArr.push(question);
+    } else if (i >= 9 && i < 12) {
+      question = new statsQuestion(globalPokeData[i]);
+      pokemonQuestionsArr.push(question);
+    } else if (i >= 12 && i < 15) {
+      question = new heightAndWeightQuestion(globalPokeData[i]);
+      pokemonQuestionsArr.push(question);
+    }
+  }
+  console.log(pokemonQuestionsArr);
 }
 
 //--------------------CODE EXECUTION AND TESTING------------------------------
-//----------------------------------------------------------------------------
-//test to see if the function above works for a single pokemon
-// getSinglePokeData(2).then(res => console.log(res));
-
-//test to see if the pokemonData is able to be set.
-setPokemonNumIDArr();
+setPokemonNumIDArr('oldschool');
 console.log(pokemonNumIDArr);
 makePokemonDataArray(pokemonNumIDArr)
   .then(pokemonDataValues => {
-    globalPokemonData = [...pokemonDataValues];
-    for (let i = 0; i < globalPokemonData.length; i++) {
-      let question;
-      if (i < 3) {
-        question = new pictureQuestion(globalPokemonData[i]);
-        pokemonQuestionsArr.push(question);
-      } else if (i >= 3 && i < 6) {
-        question = new typeQuestion(globalPokemonData[i]);
-        pokemonQuestionsArr.push(question);
-      } else if (i >= 6 && i < 9) {
-        question = new abilitiesQuestion(globalPokemonData[i]);
-        pokemonQuestionsArr.push(question);
-      } else if (i >= 9 && i < 12) {
-        question = new statsQuestion(globalPokemonData[i]);
-        pokemonQuestionsArr.push(question);
-      } else if (i >= 12 && i < 15) {
-        question = new heightAndWeightQuestion(globalPokemonData[i]);
-        pokemonQuestionsArr.push(question);
-      }
-    }
-    console.log(pokemonQuestionsArr);
+    globalPokeData = [...pokemonDataValues];
+    setPokemonQuestionsArr();
   })
   .catch(err => alert(err.message));
 

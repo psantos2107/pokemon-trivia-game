@@ -1,0 +1,75 @@
+:root {
+  --curvy-border: 255px 15px 225px 15px/15px 225px 15px 255px;
+  --border-design: solid 7px #161615;
+  --off-white-block-background: #faf8f8;
+}
+
+html {
+  background-color: blue;
+}
+
+* {
+  margin: 0;
+}
+
+.entire-container {
+  display: flex;
+  border: var(--border-design);
+  height: 100vh;
+  width: auto;
+}
+
+.game-container {
+  width: 100%;
+  min-width: 640px;
+}
+
+.profile-container {
+  display: flex;
+  justify-content: space-between;
+  border: var(--border-design);
+  width: 100%;
+}
+
+.profile-pic {
+  width: 150px;
+  height: auto;
+}
+
+.pokemon-image {
+  display: block;
+  width: 300px;
+  height: auto;
+  margin: auto;
+}
+
+.question {
+  width: fit-content;
+  margin: auto;
+  border: var(--border-design);
+}
+
+.answer-container {
+  border: var(--border-design);
+  width: 85%;
+  margin: auto;
+  height: 300px;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  justify-content: center;
+  align-items: center;
+  column-gap: 30px;
+}
+
+.answer {
+  height: 70%;
+  width: 100%;
+}
+
+aside {
+  border: var(--border-design);
+  width: 20%;
+  min-width: 280px;
+  transform: none;
+}

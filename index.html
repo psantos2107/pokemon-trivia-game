@@ -4,22 +4,43 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pokemon Trivia Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.cdnfonts.com/css/pokemon-hollow"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://kit.fontawesome.com/4caed5b0f1.js"
+      crossorigin="anonymous"
+    ></script>
     <script defer src="script.js"></script>
   </head>
   <body class="entire-container">
     <main class="game-container">
       <section>
-        <div class="profile-container">
-          <figure>
+        <div class="header-container">
+          <figure class="profile-container">
             <img
               class="profile-pic"
               src="https://i.pinimg.com/564x/4d/11/bf/4d11bfae414ab0cffb11b412fc434c39.jpg"
             />
-            <p class="profile-name">Paul</p>
-            <p class="profile-trainer-type">CoolTrainer</p>
+            <p class="profile">
+              Cooltrainer <br />
+              Paul
+            </p>
           </figure>
-          <div><p>Question #1</p></div>
+          <header style="display: flex">
+            <h1>Pokemon Trivia Challenge!</h1>
+          </header>
+          <div style="display: flex">
+            <p class="game-prompt">Question #1</p>
+          </div>
         </div>
       </section>
       <figure>
@@ -31,6 +52,8 @@
       <section>
         <p class="question">This is the question</p>
         <div class="answer-container">
+          <div class="question-and-worth">Question #1:</div>
+          <div class="timer">Timer</div>
           <button class="answer" data-option="A">A</button>
           <button class="answer" data-option="B">B</button>
           <button class="answer" data-option="C">C</button>
@@ -38,6 +61,37 @@
         </div>
       </section>
     </main>
-    <aside></aside>
+    <aside>
+      <i class="fa-solid fa-arrow-right-arrow-left toggle-aside"></i>
+      <p><u>LIFELINES</u></p>
+      <div class="lifelines-container">
+        <button class="lifeline">50/50</button>
+        <button class="lifeline">CHANGE QUESTION</button>
+      </div>
+      <p style="margin-top: 20px"><u>LEVELS</u></p>
+      <div class="question-levels">
+        <p class="level lvl15">15. CHAMPION BLUE</p>
+        <p class="level lvl14">14. ELITE FOUR LANCE</p>
+        <p class="level lvl13">13. ELITE FOUR AGATHA</p>
+        <p class="level lvl12">12. ELITE FOUR BRUNO</p>
+        <p class="level lvl11">11. ELITE FOUR LORELEI</p>
+        <p class="level lvl10">10. RIVAL BATTLE GARY</p>
+        <p class="level lvl9">9. VIRIDAN CITY GYM</p>
+        <p class="level lvl8">8. CINNABAR ISLAND GYM</p>
+        <p class="level lvl7">7. SAFFRON CITY GYM</p>
+        <p class="level lvl6">6. FUSCIA CITY GYM</p>
+        <p class="level lvl5">5. CELADON CITY GYM</p>
+        <p class="level lvl4">4. VERMILLION CITY GYM</p>
+        <p class="level lvl3">3. CERULEAN CITY GYM</p>
+        <p class="level lvl2">2. PEWTER CITY GYM</p>
+        <p class="level lvl1">1. ROUTE ONE</p>
+      </div>
+      <div class="bottom-button-container">
+        <button class="bottom-button" style="display: block">
+          INSTRUCTIONS
+        </button>
+        <button class="bottom-button" style="display: block">RESET GAME</button>
+      </div>
+    </aside>
   </body>
 </html>

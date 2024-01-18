@@ -1,9 +1,11 @@
 'use strict';
 
-//----SECTION 1: GLOBAL VARIABLES ----------------------------------------------------
+//----SECTION 1: GLOBAL VARIABLES and query selectors ----------------------------------------------------
 let globalPokeData = []; //will contain data for up to 30 different pokemon
 let pokemonNumIDArr = []; //will contain the IDs of the pokemon that will be used to fetch data from pokeAPI
 let pokemonQuestionsArr = []; //will contain questions to be used for the game
+const toggleAside = document.querySelector('.toggle-aside');
+const aside = document.querySelector('aside');
 
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
@@ -417,14 +419,18 @@ function setPokemonQuestionsArr() {
 }
 
 //--------------------CODE EXECUTION AND TESTING------------------------------
-setPokemonNumIDArr('oldschool');
+setPokemonNumIDArr('all');
 console.log(pokemonNumIDArr);
 makePokemonDataArray(pokemonNumIDArr)
   .then(pokemonDataValues => {
     globalPokeData = [...pokemonDataValues];
     setPokemonQuestionsArr();
   })
-  .catch(err => alert(err.message));
+  .catch(() =>
+    alert(
+      'Error with fetching Pokemon data. Please re-load the page or press the "reset game" button and try again.'
+    )
+  );
 
 /* TO DO:
 //figure out how to remove duplicates!
@@ -433,3 +439,11 @@ makePokemonDataArray(pokemonNumIDArr)
     a) Function to reset the game
     b) Function to update the UI
     c) Function to render data into the divs WHEN the data is fetched. */
+
+//toggle button
+toggleAside.addEventListener('click', function () {
+  aside.classList.toggle('translate-away');
+  setTimeout(() => {
+    aside.classList.toggle('hide-element');
+  }, 501);
+});

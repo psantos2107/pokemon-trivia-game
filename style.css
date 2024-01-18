@@ -1,12 +1,16 @@
 :root {
   --curvy-border: 255px 15px 225px 15px/15px 225px 15px 255px;
-  --border-design: solid 7px #161615;
+  --border-design: solid 5px #080808;
   --off-white-block-background: #faf8f8;
 }
 
+/* universal stylings, stylings among element types, and html styling */
+
 html {
-  background-color: lightblue;
+  /* background: linear-gradient(to right, #2f000c, #fa2626); */
   font-family: 'Gloria Hallelujah', cursive;
+  min-height: 100vh;
+  background-color: black;
 }
 
 * {
@@ -21,20 +25,41 @@ img {
 
 button {
   font-family: 'Gloria Hallelujah', cursive;
+  border-style: double;
+  border-width: 12px;
+  border-color: black;
+  border-radius: 30%;
 }
 
+button:hover {
+  cursor: pointer;
+  font-style: italic;
+  font-weight: bold;
+  background-color: #bb8d85;
+  border-width: 20px;
+}
+
+/* styling for the game containers */
 .entire-container {
   display: flex;
-  height: 100vh;
+  height: 100%;
   width: auto;
+  z-index: 2;
+  /* background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
+  background-size: 35%;
+  background-repeat: repeat-x;
+  background-position: cover; */
 }
 
 .game-container {
   width: 100%;
   min-width: 815px;
+  position: relative;
 }
 
+/* stylings for the top section of the page */
 .header-container {
+  background: linear-gradient(to right, #fa2626, #2f000c);
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -42,7 +67,7 @@ button {
 }
 
 .profile-pic {
-  width: 125px;
+  width: 140px;
   height: auto;
   margin-left: 10px;
 }
@@ -55,10 +80,15 @@ button {
   border-radius: var(--curvy-border);
 }
 
+header {
+  display: flex;
+}
+
 h1 {
   align-self: center;
   font-family: 'Pokemon Hollow', sans-serif;
-  font-size: 2.2rem;
+  text-align: center;
+  font-size: 2rem;
   color: black;
   background-color: var(--off-white-block-background);
   border: var(--border-design);
@@ -67,11 +97,30 @@ h1 {
   padding: 5px;
 }
 
-.game-prompt {
+.game-prompt-container {
+  display: flex;
+  flex-direction: column;
   align-self: center;
   margin-right: 20px;
+  font-size: 1.3rem;
+  width: 20%;
+  text-align: center;
 }
 
+.game-prompt {
+  background-color: var(--off-white-block-background);
+  border: var(--border-design);
+  border-radius: var(--curvy-border);
+  margin-bottom: 15px;
+}
+
+/* stylings for the middle section of the page */
+.pokemon-image-container {
+  background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
+  background-size: contain;
+  background-repeat: repeat-x;
+  background-position: cover;
+}
 .pokemon-image {
   display: block;
   width: 300px;
@@ -80,8 +129,14 @@ h1 {
   margin-top: 30px;
 }
 
+/* stylings for the bottom section of the page*/
+.bottom-section {
+  background: linear-gradient(to right, #2f000c, #fa2626);
+}
+
 .question {
-  width: fit-content;
+  width: 50%;
+  text-align: center;
   padding: 10px 60px;
   margin: auto;
   border: var(--border-design);
@@ -91,6 +146,10 @@ h1 {
 }
 
 .answer-container {
+  background: url('https://i.pinimg.com/564x/36/56/8a/36568a9268cc833b2b6f3fa858e23086.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20%;
   position: relative;
   width: 85%;
   margin: 45px auto 0px auto;
@@ -107,44 +166,54 @@ h1 {
 .answer {
   height: 60%;
   width: 100%;
-  border-radius: var(--curvy-border);
-  border: var(--border-design);
 }
 
 .question-and-worth {
   position: absolute;
-  top: -10%;
+  top: -15%;
   left: -5%;
   background-color: var(--off-white-block-background);
   border: var(--border-design);
   border-radius: var(--curvy-border);
   border-width: 4px;
   padding: 3px;
+  width: 40%;
+  text-align: center;
 }
 
 .timer {
   position: absolute;
-  top: -10%;
+  top: -15%;
   right: -5%;
   background-color: var(--off-white-block-background);
   border: var(--border-design);
   border-radius: var(--curvy-border);
   border-width: 4px;
   padding: 3px;
+  width: 40%;
+  text-align: center;
 }
 
+/* aside stylings */
 .toggle-aside {
   position: absolute;
-  left: -1.5em;
   top: 50%;
+  right: 0em;
   background-color: var(--off-white-block-background);
   border: solid black;
   padding: 3px;
 }
 
+.toggle-aside:hover {
+  cursor: pointer;
+  background-color: #bb8d85;
+  border-width: 8px;
+}
+
 aside {
-  position: relative;
-  border-left: var(--border-design);
+  border-left: solid rgb(114, 113, 113) 2px;
+  background: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
+  background-size: contain;
   width: 20%;
   min-height: 100vh;
   min-width: 280px;
@@ -152,6 +221,14 @@ aside {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  transform: translateX(0);
+  transition: all 0.5s ease-in-out;
+}
+
+.aside-header {
+  background-color: var(--off-white-block-background);
+  padding-left: 5px;
+  padding-right: 5px;
 }
 
 .lifelines-container {
@@ -159,8 +236,6 @@ aside {
 }
 
 .lifeline {
-  border: var(--border-design);
-  border-radius: var(--curvy-border);
   background-color: var(--off-white-block-background);
   border-width: 4px;
 }
@@ -191,7 +266,34 @@ aside {
   width: fit-content;
   margin: auto;
   margin-bottom: 5px;
-  border-radius: var(--curvy-border);
-  border: var(--border-design);
   border-width: 4px;
+}
+
+/* media queries to accomodate for full-screen  */
+@media (min-width: 1375px) {
+  .header-container {
+    justify-content: space-around;
+  }
+  .profile-pic {
+    width: 200px;
+    margin-right: 40px;
+  }
+}
+
+@media (min-width: 1265px) {
+  h1 {
+    font-size: 2.5rem;
+    margin-left: 50px;
+    padding: 5px;
+  }
+}
+
+/* classes to be added and removed for page effects */
+.translate-away {
+  transform: translate(100%);
+  transition: all 0.5s ease-in-out;
+}
+
+.hide-element {
+  display: none;
 }

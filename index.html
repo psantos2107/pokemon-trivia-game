@@ -23,6 +23,7 @@
   </head>
   <body class="entire-container">
     <main class="game-container">
+      <i class="fa-solid fa-arrow-right-arrow-left toggle-aside"></i>
       <section>
         <div class="header-container">
           <figure class="profile-container">
@@ -35,24 +36,27 @@
               Paul
             </p>
           </figure>
-          <header style="display: flex">
-            <h1>Pokemon Trivia Challenge!</h1>
+          <header>
+            <h1>Pokemon Trivia Challenge!!!</h1>
           </header>
-          <div style="display: flex">
-            <p class="game-prompt">Question #1</p>
+          <div class="game-prompt-container">
+            <p class="game-prompt">
+              QUESTIONS LOADED! CLICK TO START THE GAME!
+            </p>
+            <button class="start-button">START GAME</button>
           </div>
         </div>
       </section>
-      <figure>
+      <figure class="pokemon-image-container">
         <img
           class="pokemon-image"
           src="https://i.pinimg.com/564x/a4/7d/0e/a47d0e060feb0c946a612ffa5c4ee674.jpg"
         />
       </figure>
-      <section>
+      <section class="bottom-section">
         <p class="question">This is the question</p>
         <div class="answer-container">
-          <div class="question-and-worth">Question #1:</div>
+          <div class="question-and-worth">LEVEL 13: ELITE FOUR AGATHA</div>
           <div class="timer">Timer</div>
           <button class="answer" data-option="A">A</button>
           <button class="answer" data-option="B">B</button>
@@ -62,13 +66,14 @@
       </section>
     </main>
     <aside>
-      <i class="fa-solid fa-arrow-right-arrow-left toggle-aside"></i>
-      <p><u>LIFELINES</u></p>
+      <p><u class="aside-header">LIFELINES</u></p>
       <div class="lifelines-container">
         <button class="lifeline">50/50</button>
         <button class="lifeline">CHANGE QUESTION</button>
       </div>
-      <p style="margin-top: 20px"><u>LEVELS</u></p>
+      <p style="margin-top: 20px">
+        <u class="aside-header">QUESTION LEVELS</u>
+      </p>
       <div class="question-levels">
         <p class="level lvl15">15. CHAMPION BLUE</p>
         <p class="level lvl14">14. ELITE FOUR LANCE</p>

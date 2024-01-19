@@ -10,7 +10,7 @@ html {
   /* background: linear-gradient(to right, #2f000c, #fa2626); */
   font-family: 'Gloria Hallelujah', cursive;
   min-height: 100vh;
-  background-color: black;
+  background: black;
 }
 
 * {
@@ -35,7 +35,7 @@ button:hover {
   cursor: pointer;
   font-style: italic;
   font-weight: bold;
-  background-color: #bb8d85;
+  background-color: #de9a8e;
   border-width: 20px;
 }
 
@@ -63,7 +63,7 @@ button:hover {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-top: 20px;
+  margin-top: 8px;
 }
 
 .profile-pic {
@@ -122,16 +122,20 @@ h1 {
   background-position: cover;
 }
 .pokemon-image {
+  background-color: var(--off-white-block-background);
+  border-width: 10px;
   display: block;
   width: 300px;
   height: auto;
   margin: auto;
-  margin-top: 30px;
+  margin-top: 6px;
 }
 
 /* stylings for the bottom section of the page*/
 .bottom-section {
   background: linear-gradient(to right, #2f000c, #fa2626);
+  width: 100%;
+  height: auto;
 }
 
 .question {
@@ -141,7 +145,7 @@ h1 {
   margin: auto;
   border: var(--border-design);
   border-radius: var(--curvy-border);
-  margin-top: 20px;
+  margin-top: 6px;
   background-color: var(--off-white-block-background);
 }
 
@@ -153,7 +157,7 @@ h1 {
   position: relative;
   width: 85%;
   margin: 45px auto 0px auto;
-  height: 300px;
+  min-height: 265px;
   max-width: 1230px;
   display: grid;
   grid-template-rows: 1fr 1fr;
@@ -164,11 +168,14 @@ h1 {
 }
 
 .answer {
-  height: 60%;
+  height: 70%;
   width: 100%;
+  font-size: 1.1rem;
+  line-height: 1.4rem;
+  overflow: scroll;
 }
 
-.question-and-worth {
+.display-question-level {
   position: absolute;
   top: -15%;
   left: -5%;
@@ -194,6 +201,31 @@ h1 {
   text-align: center;
 }
 
+/* footer stylings */
+
+footer p {
+  display: inline-block;
+}
+
+.color-container {
+  display: inline-flex;
+  gap: 10px;
+}
+
+.theme {
+  height: 1rem;
+  width: 1rem;
+  display: inline-block;
+  border: solid white 2px;
+}
+
+.theme:hover {
+  border-color: grey;
+  height: 1.3rem;
+  width: 1.3rem;
+  cursor: pointer;
+}
+
 /* aside stylings */
 .toggle-aside {
   position: absolute;
@@ -206,7 +238,7 @@ h1 {
 
 .toggle-aside:hover {
   cursor: pointer;
-  background-color: #bb8d85;
+  background-color: #de9a8e;
   border-width: 8px;
 }
 
@@ -286,6 +318,24 @@ aside {
     margin-left: 50px;
     padding: 5px;
   }
+  .question {
+    font-size: 1.5rem;
+  }
+  .display-question-level {
+    font-size: 1.3rem;
+  }
+  .answer {
+    font-size: 1.4rem;
+    line-height: 1.6rem;
+  }
+}
+
+@media (min-width: 1630px) {
+  h1 {
+    font-size: 3rem;
+    margin-left: 50px;
+    padding: 5px;
+  }
 }
 
 /* classes to be added and removed for page effects */
@@ -296,4 +346,14 @@ aside {
 
 .hide-element {
   display: none;
+}
+
+.current-level {
+  background-color: #de9a8e;
+  border: solid red 4px;
+}
+
+.disable-button {
+  cursor: none;
+  pointer-events: none;
 }

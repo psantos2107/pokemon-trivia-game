@@ -40,9 +40,7 @@
             <h1>Pokemon Trivia Challenge!!!</h1>
           </header>
           <div class="game-prompt-container">
-            <p class="game-prompt">
-              QUESTIONS LOADED! CLICK TO START THE GAME!
-            </p>
+            <p class="game-prompt">LOADING QUESTIONS... PLEASE WAIT</p>
             <button class="start-button">START GAME</button>
           </div>
         </div>
@@ -55,19 +53,30 @@
       </figure>
       <section class="bottom-section">
         <p class="question">This is the question</p>
-        <div class="answer-container">
-          <div class="question-and-worth">LEVEL 13: ELITE FOUR AGATHA</div>
+        <div class="answer-container disable-button">
+          <div class="display-question-level">LEVEL 13: ELITE FOUR AGATHA</div>
           <div class="timer">Timer</div>
-          <button class="answer" data-option="A">A</button>
-          <button class="answer" data-option="B">B</button>
-          <button class="answer" data-option="C">C</button>
-          <button class="answer" data-option="D">D</button>
+          <button class="answer ans1" data-num="1">A:</button>
+          <button class="answer ans2" data-num="2">B:</button>
+          <button class="answer ans3" data-num="3">C:</button>
+          <button class="answer ans4" data-num="4">D:</button>
         </div>
       </section>
+      <footer>
+        <p style="color: white">Change Theme:</p>
+        <div class="color-container">
+          <div style="background-color: red" class="theme"></div>
+          <div style="background-color: blue" class="theme"></div>
+          <div style="background-color: green" class="theme"></div>
+          <div style="background-color: yellow" class="theme"></div>
+          <div style="background-color: purple" class="theme"></div>
+          <div style="background-color: pink" class="theme"></div>
+        </div>
+      </footer>
     </main>
     <aside>
       <p><u class="aside-header">LIFELINES</u></p>
-      <div class="lifelines-container">
+      <div class="lifelines-container disable-button">
         <button class="lifeline">50/50</button>
         <button class="lifeline">CHANGE QUESTION</button>
       </div>
@@ -75,21 +84,21 @@
         <u class="aside-header">QUESTION LEVELS</u>
       </p>
       <div class="question-levels">
-        <p class="level lvl15">15. CHAMPION BLUE</p>
-        <p class="level lvl14">14. ELITE FOUR LANCE</p>
-        <p class="level lvl13">13. ELITE FOUR AGATHA</p>
-        <p class="level lvl12">12. ELITE FOUR BRUNO</p>
-        <p class="level lvl11">11. ELITE FOUR LORELEI</p>
-        <p class="level lvl10">10. RIVAL BATTLE GARY</p>
-        <p class="level lvl9">9. VIRIDAN CITY GYM</p>
-        <p class="level lvl8">8. CINNABAR ISLAND GYM</p>
-        <p class="level lvl7">7. SAFFRON CITY GYM</p>
-        <p class="level lvl6">6. FUSCIA CITY GYM</p>
-        <p class="level lvl5">5. CELADON CITY GYM</p>
-        <p class="level lvl4">4. VERMILLION CITY GYM</p>
-        <p class="level lvl3">3. CERULEAN CITY GYM</p>
-        <p class="level lvl2">2. PEWTER CITY GYM</p>
-        <p class="level lvl1">1. ROUTE ONE</p>
+        <p class="level lvl15">15: CHAMPION BLUE</p>
+        <p class="level lvl14">14: ELITE FOUR LANCE</p>
+        <p class="level lvl13">13: ELITE FOUR AGATHA</p>
+        <p class="level lvl12">12: ELITE FOUR BRUNO</p>
+        <p class="level lvl11">11: ELITE FOUR LORELEI</p>
+        <p class="level lvl10">10: RIVAL BATTLE GARY</p>
+        <p class="level lvl9">9: VIRIDAN CITY GYM</p>
+        <p class="level lvl8">8: CINNABAR ISLAND GYM</p>
+        <p class="level lvl7">7: SAFFRON CITY GYM</p>
+        <p class="level lvl6">6: FUSCIA CITY GYM</p>
+        <p class="level lvl5">5: CELADON CITY GYM</p>
+        <p class="level lvl4">4: VERMILLION CITY GYM</p>
+        <p class="level lvl3">3: CERULEAN CITY GYM</p>
+        <p class="level lvl2">2: PEWTER CITY GYM</p>
+        <p class="level lvl1">1: ROUTE ONE</p>
       </div>
       <div class="bottom-button-container">
         <button class="bottom-button" style="display: block">

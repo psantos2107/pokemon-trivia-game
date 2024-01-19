@@ -4,8 +4,7 @@
 let globalPokeData = []; //will contain data for up to 30 different pokemon
 let pokemonNumIDArr = []; //will contain the IDs of the pokemon that will be used to fetch data from pokeAPI
 let pokemonQuestionsArr = []; //will contain questions to be used for the game
-const toggleAside = document.querySelector('.toggle-aside');
-const aside = document.querySelector('aside');
+let currentQuestionNum = 0;
 
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
@@ -13,6 +12,7 @@ const aside = document.querySelector('aside');
 class Question {
   constructor(pokeData) {
     this.pokeData = pokeData;
+    this.answerIndex = shuffleArray([1, 2, 3, 4]);
   }
 
   makeThreeRandomIndicesArray() {
@@ -35,21 +35,28 @@ class Question {
     return string[0].toUpperCase() + string.slice(1);
   }
 
-  createIncorrectAnswerArray(pokeData, retrieveFunction) {
+  createIncorrectAnswerArray(pokeData, retrieveFunction, ansIndex) {
     let incorrectAnswers = [];
 
+    //produces an array of pokemon data to be used to derive wrong answers from
     //prettier-ignore
     const wrongAnswerPokeDataArr = this.createWrongAnswerPokeDataArray(pokeData);
 
-    const randomIndices = this.makeThreeRandomIndicesArray();
-    randomIndices.forEach(index => {
+    const randomIndices = this.makeThreeRandomIndicesArray(); //creates an array of three random numbers
+    randomIndices.forEach((randomIndex, i) => {
+      //creation of the incorrect answer object
       const incorrectAnswer = {
         isCorrect: false,
+        answerNumber: ansIndex[i + 1], //sets a number 1-4 for each answer object (to determine where it will be placed in the DOM when rendered)
       };
+
+      //based on the function argument, will generate a wrong answer based off a random pokemon in the wrong pokeData array. Then it sets it as a property in the incorrect answer object
       //prettier-ignore
-      incorrectAnswer.answer = retrieveFunction(wrongAnswerPokeDataArr[index]);
-      incorrectAnswers.push(incorrectAnswer);
+      incorrectAnswer.answer = retrieveFunction(wrongAnswerPokeDataArr[randomIndex]);
+      incorrectAnswers.push(incorrectAnswer); //push the incorrect object in an incorrect object array
     });
+
+    //returns an array of three incorrect answer objects
     return incorrectAnswers;
   }
 }
@@ -77,10 +84,12 @@ class pictureQuestion extends Question {
     const correctAnswer = {
       isCorrect: true,
       answer: this.capitalizeString(pokeData.name),
+      answerNumber: this.answerIndex[0],
     };
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
-      this.retrievePokemonName.bind(this)
+      this.retrievePokemonName.bind(this),
+      [...this.answerIndex]
     );
     this._answers = [correctAnswer, ...incorrectAnswers];
   }
@@ -175,10 +184,11 @@ class typeQuestion extends Question {
     ]);
 
     //after you get the array of answers, then map those answers into answer objects. and store the resulting array of answer objects into this._answers
-    this._answers = fullResponseStringArr.map(response => {
+    this._answers = fullResponseStringArr.map((response, i) => {
       return {
         isCorrect: response === correctAnswer,
         answer: response,
+        answerNumber: this.answerIndex[i],
       };
     });
   }
@@ -210,12 +220,14 @@ class abilitiesQuestion extends Question {
     const correctAnswer = {
       isCorrect: true,
       answer: this.retrievePokemonAbility(pokeData),
+      answerNumber: this.answerIndex[0],
     };
 
     //grab all incorrect answers
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
-      this.retrievePokemonAbility.bind(this)
+      this.retrievePokemonAbility.bind(this),
+      [...this.answerIndex]
     );
 
     //return all answers as one array
@@ -266,11 +278,13 @@ class statsQuestion extends Question {
     const correctAnswer = {
       isCorrect: true,
       answer: this.retrieveBaseStats(pokeData),
+      answerNumber: this.answerIndex[0],
     };
 
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
-      this.retrieveBaseStats.bind(this)
+      this.retrieveBaseStats.bind(this),
+      [...this.answerIndex]
     );
 
     this._answers = [correctAnswer, ...incorrectAnswers];
@@ -309,11 +323,13 @@ class heightAndWeightQuestion extends Question {
     const correctAnswer = {
       isCorrect: true,
       answer: this.retrieveHeightAndWeight(pokeData),
+      answerNumber: this.answerIndex[0],
     };
 
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
-      this.retrieveHeightAndWeight.bind(this)
+      this.retrieveHeightAndWeight.bind(this),
+      [...this.answerIndex]
     );
 
     this._answers = [correctAnswer, ...incorrectAnswers];
@@ -353,6 +369,15 @@ async function makePokemonDataArray(pokemonIDarr) {
     );
   }
 }
+
+const toggleAside = document.querySelector('.toggle-aside');
+const aside = document.querySelector('aside');
+const gamePromptContainer = document.querySelector('.game-prompt-container');
+const gamePrompt = document.querySelector('.game-prompt');
+const answerContainer = document.querySelector('.answer-container');
+const questionBox = document.querySelector('.question');
+const bottomSection = document.querySelector('.bottom-section');
+const lifelines = document.querySelector('.lifelines-container');
 
 //--------FUNCTIONS THAT HELP CREATE THE POKEMON ID ARRAY THAT WILL BE PASSED INTO THE ASYNC FUNCTIONS FOR FETCHING POKEMON DATA --------------------------
 function correctForDuplicateIDs(arr, min, max) {
@@ -418,6 +443,24 @@ function setPokemonQuestionsArr() {
   console.log(pokemonQuestionsArr);
 }
 
+function shuffleArray(arr) {
+  let shuffledArr = [...arr];
+  for (let i = 0; i < shuffledArr.length; i++) {
+    const j = Math.floor(Math.random() * shuffledArr.length);
+    [shuffledArr[i], shuffledArr[j]] = [shuffledArr[j], shuffledArr[i]];
+  }
+  return shuffledArr;
+}
+
+function insertButton(buttonText, buttonClass) {
+  questionBox.insertAdjacentHTML(
+    'afterend',
+    `<button
+  style="display: block; width: fit-content; margin: auto; padding-left: 5px; padding-right 5px; font-size: 1.1rem; margin-top: 5px;" class = "inserted-button ${buttonClass}"
+>${buttonText}</button>`
+  );
+}
+
 //--------------------CODE EXECUTION AND TESTING------------------------------
 setPokemonNumIDArr('all');
 console.log(pokemonNumIDArr);
@@ -425,12 +468,24 @@ makePokemonDataArray(pokemonNumIDArr)
   .then(pokemonDataValues => {
     globalPokeData = [...pokemonDataValues];
     setPokemonQuestionsArr();
+    setTimeout(() => {
+      gamePrompt.textContent = 'QUESTIONS LOADED! CLICK THE BUTTON TO PLAY!';
+    }, 300);
   })
   .catch(() =>
     alert(
       'Error with fetching Pokemon data. Please re-load the page or press the "reset game" button and try again.'
     )
   );
+
+//Start button = Next Question VS play again!
+/* TASKS: 
+    (1) Render the question onto the page
+      (a) Place the question in the question box:
+      (b) Place the level in the level box
+      (c) Change text content in the answer boxes
+        (c1): randomize an array with numbers 1-4
+        (c2): based on the array, assign the text content to each */
 
 /* TO DO:
 //figure out how to remove duplicates!
@@ -445,5 +500,102 @@ toggleAside.addEventListener('click', function () {
   aside.classList.toggle('translate-away');
   setTimeout(() => {
     aside.classList.toggle('hide-element');
-  }, 501);
+  }, 350);
 });
+
+gamePromptContainer.addEventListener('click', function (e) {
+  if (e.target.tagName === 'BUTTON') {
+    lifelines.classList.toggle('disable-button');
+    renderQuestionAndAnswers();
+    // const displayQLevel = document.querySelector('.display-question-level');
+    // const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum];
+    // const previousLvl = document.querySelector(`.lvl${currentQuestionNum}`);
+    // const currentLvl = document.querySelector(`.lvl${currentQuestionNum + 1}`);
+    // const answerArr = currentPokeQuestion.answers;
+    // const pokeImage = document.querySelector('.pokemon-image');
+
+    // pokeImage.src = currentPokeQuestion.pokeData.sprites.front_default;
+    // displayQLevel.textContent = `LVL ${currentLvl.textContent}`;
+    // if (previousLvl) {
+    //   previousLvl.classList.toggle('current-level');
+    // }
+    // currentLvl.classList.toggle('current-level');
+    // questionBox.textContent = currentPokeQuestion.questionPrompt;
+    // answerArr.forEach(answerObj => {
+    //   const answerBox = document.querySelector(`.ans${answerObj.answerNumber}`);
+    //   answerBox.textContent += ` ${answerObj.answer}`;
+    // });
+    // gamePromptContainer.classList.add('disable-button');
+    // answerContainer.classList.toggle('disable-button');
+  }
+});
+
+answerContainer.addEventListener('click', function (e) {
+  const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1];
+  if (e.target.tagName === 'BUTTON') {
+    const chosenAnswerObj = currentPokeQuestion.answers.find(answer => {
+      return parseInt(e.target.dataset.num) === answer.answerNumber;
+    });
+    const correctAnswerObj = currentPokeQuestion.answers.find(
+      answer => answer.isCorrect
+    );
+
+    //backgroundColor is yellow to notify that the person chose the answer....
+    e.target.style.backgroundColor = '#FFF9C4';
+
+    //setTimeOut for dramatic effect
+    setTimeout(() => {
+      if (chosenAnswerObj.isCorrect) {
+        e.target.style.backgroundColor = 'green';
+        questionBox.textContent = 'CORRECT!! YOU GOT THIS!';
+        insertButton('Next Question?', 'next-question');
+      } else {
+        e.target.style.backgroundColor = '#FF0000';
+        document.querySelector(
+          `.ans${correctAnswerObj.answerNumber}`
+        ).style.backgroundColor = '#4CAF50';
+        questionBox.textContent =
+          'INCORRECT! Sorry about that, trainer... Press "Play Again" to play with different questions!';
+        insertButton('Play Again?', 'play-again');
+      }
+    }, 1000);
+    this.classList.toggle('disable-button');
+  }
+});
+
+bottomSection.addEventListener('click', function (e) {
+  if (e.target.classList.contains('next-question')) {
+    const insertedButton = document.querySelector('.inserted-button');
+    const answerBoxes = document.querySelectorAll('.answer');
+    insertedButton.remove();
+    answerBoxes.forEach(
+      answerBox =>
+        (answerBox.style.backgroundColor = 'var(--off-white-block-background)')
+    );
+    renderQuestionAndAnswers();
+  }
+});
+
+function renderQuestionAndAnswers() {
+  currentQuestionNum++; // =2
+  const displayQLevel = document.querySelector('.display-question-level');
+  const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1]; //index1
+  const previousLvl = document.querySelector(`.lvl${currentQuestionNum - 1}`); //level1
+  const currentLvl = document.querySelector(`.lvl${currentQuestionNum}`); //level2
+  const answerArr = currentPokeQuestion.answers;
+  const pokeImage = document.querySelector('.pokemon-image');
+
+  pokeImage.src = currentPokeQuestion.pokeData.sprites.front_default;
+  displayQLevel.textContent = `LVL ${currentLvl.textContent}`;
+  if (previousLvl) {
+    previousLvl.classList.toggle('current-level');
+  }
+  currentLvl.classList.toggle('current-level'); //currentLvl = level 1
+  questionBox.textContent = currentPokeQuestion.questionPrompt;
+  answerArr.forEach(answerObj => {
+    const answerBox = document.querySelector(`.ans${answerObj.answerNumber}`);
+    answerBox.textContent = answerObj.answer;
+  });
+  gamePromptContainer.classList.add('disable-button');
+  answerContainer.classList.toggle('disable-button');
+}

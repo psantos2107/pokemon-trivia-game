@@ -1,10 +1,26 @@
 'use strict';
 
+import confetti from 'https://cdn.skypack.dev/canvas-confetti';
+
 //----SECTION 1: GLOBAL VARIABLES and query selectors ----------------------------------------------------
 let globalPokeData = []; //will contain data for up to 30 different pokemon
 let pokemonNumIDArr = []; //will contain the IDs of the pokemon that will be used to fetch data from pokeAPI
 let pokemonQuestionsArr = []; //will contain questions to be used for the game
 let currentQuestionNum = 0;
+let currentStreak = 0;
+let streakRecord = 0;
+let continuingStreak = false;
+//prettier-ignore
+const backgroundStyles = [
+  {color: 'red', lighter: '#fa2626', darker: '#2f000c', highlight: '#FF9999' },
+  {color: 'blue', lighter: '#007bff', darker: '#014078', highlight: '#ADD8E6',},
+  {color: 'yellow', lighter: '#ffeb3b',darker: '#c5961f', highlight: '#FFFF99',},
+  {color: 'green', lighter: '#5ac65e', darker: '#05671c', highlight: '#90EE90',},
+  {color: 'purple', lighter: '#b22bca', darker: '#6a0080', highlight: '#C3B1E1',},
+  {color: 'pink', lighter: '#ff83ac', darker: '#d1115e', highlight: '#FFB6C1',},
+  {color: 'brown', lighter: '#dd6119', darker: '#3f2f1d', highlight: '#A98274',},
+  {color: 'grey', lighter: '#bdc3c7', darker: '#2c3e50', highlight: '#D3D3D3',},
+];
 
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
@@ -344,7 +360,7 @@ async function getSinglePokeData(num) {
     const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${num}`);
     //parse the pokeAPI data
     const data = await response.json();
-    return data; //returns the data as the fulfillment value within a Promise
+    return data; //returns a promise with the single parsed json pokemon data as the success value
   } catch {
     throw new Error(
       'Unable to fetch pokemon data... Please reload the page and try again.'
@@ -355,12 +371,13 @@ async function getSinglePokeData(num) {
 //creates a pokemon array to be used for the questions that will be displayed
 async function makePokemonDataArray(pokemonIDarr) {
   try {
-    //creates an array of promises. Each promise is obtained from the getSinglePokeData function, which fetches the data about a single pokemon. Exactly which pokemon it fetches data about is derived off each pokemonID in the passed pokemonIDarr
+    //preps an array of promises to be passed to Promise.allsettled
     const promiseArray = pokemonIDarr.map(function (pokemonID) {
       return getSinglePokeData(pokemonID);
     });
-    //Promise.allSettled returns an array of all the fulfilled data from the promiseArray above. Then the fulfilled values are mapped out and stored in pokemonDataValues as an array
+    //runs all 15 promises in parallel for efficiency
     const globalPokeData = await Promise.allSettled(promiseArray);
+    //maps the value property of all the success vales of the 15 promises to be returned as an array of pokemon data derived from the fulfilled promises
     const pokemonDataValues = globalPokeData.map(pokeData => pokeData.value);
     return pokemonDataValues;
   } catch {
@@ -370,6 +387,9 @@ async function makePokemonDataArray(pokemonIDarr) {
   }
 }
 
+//----ALL QUERY SELECTORS FOR DOM MANIPULATION -------------------------------------
+const headerSection = document.querySelector('.header-section');
+const profile = document.querySelector('.profile');
 const toggleAside = document.querySelector('.toggle-aside');
 const aside = document.querySelector('aside');
 const gamePromptContainer = document.querySelector('.game-prompt-container');
@@ -378,8 +398,236 @@ const answerContainer = document.querySelector('.answer-container');
 const questionBox = document.querySelector('.question');
 const bottomSection = document.querySelector('.bottom-section');
 const lifelines = document.querySelector('.lifelines-container');
+const displayQLevel = document.querySelector('.display-question-level');
+const pokeImage = document.querySelector('.pokemon-image');
+const bottomButtonsinAside = document.querySelector('.bottom-button-container');
+const colorContainer = document.querySelector('.color-container');
 
-//--------FUNCTIONS THAT HELP CREATE THE POKEMON ID ARRAY THAT WILL BE PASSED INTO THE ASYNC FUNCTIONS FOR FETCHING POKEMON DATA --------------------------
+//
+
+function insertButton(buttonText, buttonClass) {
+  questionBox.insertAdjacentHTML(
+    'afterend',
+    `<button
+  style="display: block; width: fit-content; margin: auto; padding-left: 5px; padding-right 5px; font-size: 1.1rem; margin-top: 5px;" class = "inserted-button ${buttonClass}"
+>${buttonText}</button>`
+  );
+}
+
+function renderQuestionAndAnswers() {
+  currentQuestionNum++;
+  const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1]; //index1
+  const previousLvl = document.querySelector(`.lvl${currentQuestionNum - 1}`); //level1
+  const currentLvl = document.querySelector(`.lvl${currentQuestionNum}`); //level2
+  const answerArr = currentPokeQuestion.answers;
+
+  pokeImage.src = currentPokeQuestion.pokeData.sprites.front_default;
+  displayQLevel.textContent = `LVL ${currentLvl.textContent}`;
+  if (previousLvl) {
+    previousLvl.classList.toggle('current-level');
+  }
+  currentLvl.classList.toggle('current-level'); //currentLvl = level 1
+  questionBox.textContent = currentPokeQuestion.questionPrompt;
+  answerArr.forEach(answerObj => {
+    const answerBox = document.querySelector(`.ans${answerObj.answerNumber}`);
+    answerBox.textContent = answerObj.answer;
+  });
+  gamePromptContainer.classList.add('disable-button');
+  answerContainer.classList.toggle('disable-button');
+}
+
+function renderWinScreen() {
+  questionBox.textContent = `CONGRATS!! YOU WON THE GAME, SUPER TRAINER! You really know your stuff! Your current streak is ${currentStreak}. Can you continue that streak? Press "play again" to keep on going with a fresh set of questions!`;
+  updateAndRenderStreak();
+  continuingStreak = true;
+  insertButton('Play Again?', 'play-again');
+}
+
+function updateAndRenderStreak() {
+  streakRecord = currentStreak > streakRecord ? currentStreak : streakRecord;
+  profile.innerHTML = ` Cooltrainer <br/> Paul <br/> Record Streak: ${streakRecord}`;
+}
+
+//toggle button
+toggleAside.addEventListener('click', function () {
+  aside.classList.toggle('translate-away');
+  setTimeout(() => {
+    aside.classList.toggle('hide-element');
+  }, 350);
+});
+
+// toggleAside.addEventListener('mouseenter', function (e) {
+//   toggleAside.style.backgroundColor = '#de9a8e';
+// });
+
+// toggleAside.addEventListener('mouseleave', function (e) {
+//   toggleAside.style.backgroundColor = 'var(--off-white-block-background)';
+// });
+
+gamePromptContainer.addEventListener('click', function (e) {
+  if (e.target.tagName === 'BUTTON') {
+    lifelines.classList.toggle('disable-button');
+    renderQuestionAndAnswers();
+  }
+});
+
+answerContainer.addEventListener('click', function (e) {
+  //grabs the pokeData of the question the player is currently on
+  const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1];
+  //grabs the answer object that is associated with the option that the player chose
+  const chosenAnswerObj = currentPokeQuestion.answers.find(answer => {
+    return parseInt(e.target.dataset.num) === answer.answerNumber;
+  });
+  //grabs the answer object that is associated with the correct answer, in order to compare with what the player chose
+  const correctAnswerObj = currentPokeQuestion.answers.find(
+    answer => answer.isCorrect
+  );
+  //grabs the button element that is associated with the correct answer
+  const correctAnswerBox = document.querySelector(
+    `.ans${correctAnswerObj.answerNumber}`
+  );
+
+  //code only runs if the target was a button element
+  if (e.target.tagName === 'BUTTON') {
+    //backgroundColor is yellow to notify that the person chose the answer and is pending a response...
+    e.target.classList.add('yellow-background');
+
+    //setTimeOut for dramatic effect
+    setTimeout(() => {
+      e.target.classList.remove('yellow-background');
+      //if player chose the correct answer...
+      if (chosenAnswerObj.isCorrect) {
+        e.target.classList.add('green-background'); //to signify if someone is correct
+        currentStreak++; //increment streak of questions
+        confetti(); //throws confetti to congratulate the player (imported from an external library)
+
+        //if the player is at the last question, render the win screen and exit the function
+        if (currentQuestionNum === pokemonQuestionsArr.length) {
+          renderWinScreen();
+          return;
+        }
+        //otherwise, congratulate and allow the player to access the next question
+        questionBox.textContent = 'CORRECT!! YOU GOT THIS!';
+        insertButton('Next Question?', 'next-question');
+
+        //if the player chose the wrong answer....
+      } else if (!chosenAnswerObj.isCorrect) {
+        e.target.classList.add('red-background');
+        correctAnswerBox.classList.add('green-background');
+        updateAndRenderStreak(); //updates and renders streak to the player's profile in preparation for the end of the game
+        questionBox.textContent = `INCORRECT! Sorry about that, trainer... Press "Play Again" to play with different questions! Current Streak was ${currentStreak}. Record Streak: ${streakRecord}`; //prompts user that game is over
+        currentStreak = 0; //resets streak
+        continuingStreak = false; //indicates that the player is no longer holding a streak
+        insertButton('Play Again?', 'play-again'); //provides the player the option to play again if desired.
+      }
+    }, 1000);
+    this.classList.toggle('disable-button');
+  }
+});
+
+bottomSection.addEventListener('click', function (e) {
+  if (e.target.classList.contains('next-question')) {
+    const answerBoxes = document.querySelectorAll('.answer');
+    e.target.remove(); //removes the button that was inserted
+    //clears all answerboxes of their background color
+    answerBoxes.forEach(answerBox => {
+      answerBox.classList.remove('red-background');
+      answerBox.classList.remove('green-background');
+    });
+    renderQuestionAndAnswers(); //displays the next question and set of answers
+  } else if (e.target.classList.contains('play-again')) {
+    if (continuingStreak) {
+      resetGame(
+        `You're doing amazing, trainer! The sky is the limit! Click on the start button on the top right to start again!`
+      );
+    } else {
+      resetGame(
+        'Good on you, for trying the game out again, trainer! Good luck this time! Click on the start button when questions are loaded to start again. '
+      );
+    }
+  }
+});
+
+bottomButtonsinAside.addEventListener('click', function (e) {
+  if (e.target.classList.contains('reset-game')) {
+    let userInput = prompt(
+      `Are you sure? Your streak will not be recorded, and you'll be presented will all new Pokemon questions! Please type in "yes" or "no". Capitalization doesn't matter.`
+    );
+    let alteredInput = userInput.toLowerCase().trimEnd(); //ensures capitalization and whitespace don't matter!
+    while (!['yes', 'no'].includes(alteredInput)) {
+      userInput = prompt(
+        `Invalid. Please type "yes" or "no" on whether or not you want to reset the game. Captilization doesn't matter.`
+      );
+      alteredInput = userInput.toLowerCase().trimEnd();
+    }
+    if (alteredInput === 'yes') {
+      resetGame('The game will be reset! Enjoy your new questions, trainer!');
+      return;
+    } else if (alteredInput === 'no') {
+      return;
+    }
+  }
+});
+
+function resetGame(message) {
+  const answers = document.querySelectorAll('.answer');
+  const levels = document.querySelectorAll('.level');
+  const playAgain = document.querySelector('.play-again');
+  currentQuestionNum = 0; //current question is 0
+  globalPokeData.length = 0; //clear pokedata array
+  pokemonNumIDArr.length = 0; //clear pokemonNum ID array
+  pokemonQuestionsArr.length = 0; //clear pokeQuestions array
+  questionBox.textContent = message;
+  displayQLevel.textContent = 'Question Level will go here!';
+  answers.forEach((answer, i) => {
+    const alphabetArr = ['A', 'B', 'C', 'D'];
+    answer.textContent = `Answer ${alphabetArr[i]}`;
+    answer.classList.remove('red-background');
+    answer.classList.remove('green-background');
+  });
+  levels.forEach(level => {
+    level.classList.remove('current-level');
+  });
+  pokeImage.src = pokeImage.dataset.oak;
+  gamePrompt.textContent = 'LOADING NEW QUESTIONS! PLEASE WAIT...';
+  prepareAllGameQuestions();
+  if (playAgain) {
+    playAgain.remove();
+  }
+}
+
+colorContainer.addEventListener('click', function (e) {
+  if (e.target.classList.contains('theme')) {
+    //finds backgroundStyle object associated with the clicked backgroundtheme
+    const chosenTheme = backgroundStyles.find(
+      style => e.target.dataset.color === style.color
+    );
+
+    //changes the gradient color scheme of the header container and bottom container based on the chosen theme
+    headerSection.style.background = `linear-gradient(to right, ${chosenTheme.lighter}, ${chosenTheme.darker})`;
+    bottomSection.style.background = `linear-gradient(to right, ${chosenTheme.darker}, ${chosenTheme.lighter})`;
+
+    //obtains the external css stylesheet
+    const targetStyleSheet = Array.from(document.styleSheets).find(
+      sheet => sheet.href && sheet.href.includes('style.css')
+    );
+
+    //finds the '.current-level' class selector in the form of an object!
+    const currentLevelStyle = Array.from(targetStyleSheet.rules).find(
+      rule => rule.selectorText === '.current-level'
+    );
+
+    //finds the 'button:hover' class selector in the form of an object!
+    const buttonHoverStyle = Array.from(targetStyleSheet.rules).find(
+      rule => rule.selectorText === 'button:hover'
+    );
+
+    //changes the background color of the level ladder and button-hover color based on the theme chosen.
+    currentLevelStyle.style.backgroundColor = chosenTheme.highlight;
+    buttonHoverStyle.style.backgroundColor = chosenTheme.highlight;
+  }
+});
+
 function correctForDuplicateIDs(arr, min, max) {
   let set = new Set(arr);
   while (set.size < 30) {
@@ -419,7 +667,15 @@ function setPokemonNumIDArr(chosenRegion) {
   pokemonNumIDArr = correctForDuplicateIDs(pokemonNumIDArr, min, max);
 }
 
-//------------ FUNCTION THAT SETS THE POKEMON QUESTIONS ARRAY -----------------------
+function shuffleArray(arr) {
+  let shuffledArr = [...arr];
+  for (let i = 0; i < shuffledArr.length; i++) {
+    const j = Math.floor(Math.random() * shuffledArr.length);
+    [shuffledArr[i], shuffledArr[j]] = [shuffledArr[j], shuffledArr[i]];
+  }
+  return shuffledArr;
+}
+
 function setPokemonQuestionsArr() {
   for (let i = 0; i < 15; i++) {
     let question;
@@ -440,162 +696,32 @@ function setPokemonQuestionsArr() {
       pokemonQuestionsArr.push(question);
     }
   }
-  console.log(pokemonQuestionsArr);
 }
 
-function shuffleArray(arr) {
-  let shuffledArr = [...arr];
-  for (let i = 0; i < shuffledArr.length; i++) {
-    const j = Math.floor(Math.random() * shuffledArr.length);
-    [shuffledArr[i], shuffledArr[j]] = [shuffledArr[j], shuffledArr[i]];
-  }
-  return shuffledArr;
-}
-
-function insertButton(buttonText, buttonClass) {
-  questionBox.insertAdjacentHTML(
-    'afterend',
-    `<button
-  style="display: block; width: fit-content; margin: auto; padding-left: 5px; padding-right 5px; font-size: 1.1rem; margin-top: 5px;" class = "inserted-button ${buttonClass}"
->${buttonText}</button>`
-  );
-}
-
-//--------------------CODE EXECUTION AND TESTING------------------------------
-setPokemonNumIDArr('all');
-console.log(pokemonNumIDArr);
-makePokemonDataArray(pokemonNumIDArr)
-  .then(pokemonDataValues => {
-    globalPokeData = [...pokemonDataValues];
-    setPokemonQuestionsArr();
-    setTimeout(() => {
-      gamePrompt.textContent = 'QUESTIONS LOADED! CLICK THE BUTTON TO PLAY!';
-    }, 300);
-  })
-  .catch(() =>
-    alert(
-      'Error with fetching Pokemon data. Please re-load the page or press the "reset game" button and try again.'
-    )
-  );
-
-//Start button = Next Question VS play again!
-/* TASKS: 
-    (1) Render the question onto the page
-      (a) Place the question in the question box:
-      (b) Place the level in the level box
-      (c) Change text content in the answer boxes
-        (c1): randomize an array with numbers 1-4
-        (c2): based on the array, assign the text content to each */
-
-/* TO DO:
-//figure out how to remove duplicates!
-1) Create all global variables, classes, data needed for the game to properly run
-2) Create the following functions:
-    a) Function to reset the game
-    b) Function to update the UI
-    c) Function to render data into the divs WHEN the data is fetched. */
-
-//toggle button
-toggleAside.addEventListener('click', function () {
-  aside.classList.toggle('translate-away');
-  setTimeout(() => {
-    aside.classList.toggle('hide-element');
-  }, 350);
-});
-
-gamePromptContainer.addEventListener('click', function (e) {
-  if (e.target.tagName === 'BUTTON') {
-    lifelines.classList.toggle('disable-button');
-    renderQuestionAndAnswers();
-    // const displayQLevel = document.querySelector('.display-question-level');
-    // const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum];
-    // const previousLvl = document.querySelector(`.lvl${currentQuestionNum}`);
-    // const currentLvl = document.querySelector(`.lvl${currentQuestionNum + 1}`);
-    // const answerArr = currentPokeQuestion.answers;
-    // const pokeImage = document.querySelector('.pokemon-image');
-
-    // pokeImage.src = currentPokeQuestion.pokeData.sprites.front_default;
-    // displayQLevel.textContent = `LVL ${currentLvl.textContent}`;
-    // if (previousLvl) {
-    //   previousLvl.classList.toggle('current-level');
-    // }
-    // currentLvl.classList.toggle('current-level');
-    // questionBox.textContent = currentPokeQuestion.questionPrompt;
-    // answerArr.forEach(answerObj => {
-    //   const answerBox = document.querySelector(`.ans${answerObj.answerNumber}`);
-    //   answerBox.textContent += ` ${answerObj.answer}`;
-    // });
-    // gamePromptContainer.classList.add('disable-button');
-    // answerContainer.classList.toggle('disable-button');
-  }
-});
-
-answerContainer.addEventListener('click', function (e) {
-  const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1];
-  if (e.target.tagName === 'BUTTON') {
-    const chosenAnswerObj = currentPokeQuestion.answers.find(answer => {
-      return parseInt(e.target.dataset.num) === answer.answerNumber;
-    });
-    const correctAnswerObj = currentPokeQuestion.answers.find(
-      answer => answer.isCorrect
+function prepareAllGameQuestions() {
+  setPokemonNumIDArr('all');
+  lifelines.classList.add('disable-button');
+  makePokemonDataArray(pokemonNumIDArr)
+    .then(pokemonDataValues => {
+      globalPokeData = [...pokemonDataValues];
+      setPokemonQuestionsArr();
+      setTimeout(() => {
+        gamePromptContainer.classList.remove('disable-button');
+        gamePrompt.textContent = 'QUESTIONS LOADED! CLICK THE BUTTON TO PLAY!';
+      }, 400);
+    })
+    .catch(() =>
+      alert(
+        'Error with fetching Pokemon data. Please re-load the page or press the "reset game" button and try again.'
+      )
     );
-
-    //backgroundColor is yellow to notify that the person chose the answer....
-    e.target.style.backgroundColor = '#FFF9C4';
-
-    //setTimeOut for dramatic effect
-    setTimeout(() => {
-      if (chosenAnswerObj.isCorrect) {
-        e.target.style.backgroundColor = 'green';
-        questionBox.textContent = 'CORRECT!! YOU GOT THIS!';
-        insertButton('Next Question?', 'next-question');
-      } else {
-        e.target.style.backgroundColor = '#FF0000';
-        document.querySelector(
-          `.ans${correctAnswerObj.answerNumber}`
-        ).style.backgroundColor = '#4CAF50';
-        questionBox.textContent =
-          'INCORRECT! Sorry about that, trainer... Press "Play Again" to play with different questions!';
-        insertButton('Play Again?', 'play-again');
-      }
-    }, 1000);
-    this.classList.toggle('disable-button');
-  }
-});
-
-bottomSection.addEventListener('click', function (e) {
-  if (e.target.classList.contains('next-question')) {
-    const insertedButton = document.querySelector('.inserted-button');
-    const answerBoxes = document.querySelectorAll('.answer');
-    insertedButton.remove();
-    answerBoxes.forEach(
-      answerBox =>
-        (answerBox.style.backgroundColor = 'var(--off-white-block-background)')
-    );
-    renderQuestionAndAnswers();
-  }
-});
-
-function renderQuestionAndAnswers() {
-  currentQuestionNum++; // =2
-  const displayQLevel = document.querySelector('.display-question-level');
-  const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1]; //index1
-  const previousLvl = document.querySelector(`.lvl${currentQuestionNum - 1}`); //level1
-  const currentLvl = document.querySelector(`.lvl${currentQuestionNum}`); //level2
-  const answerArr = currentPokeQuestion.answers;
-  const pokeImage = document.querySelector('.pokemon-image');
-
-  pokeImage.src = currentPokeQuestion.pokeData.sprites.front_default;
-  displayQLevel.textContent = `LVL ${currentLvl.textContent}`;
-  if (previousLvl) {
-    previousLvl.classList.toggle('current-level');
-  }
-  currentLvl.classList.toggle('current-level'); //currentLvl = level 1
-  questionBox.textContent = currentPokeQuestion.questionPrompt;
-  answerArr.forEach(answerObj => {
-    const answerBox = document.querySelector(`.ans${answerObj.answerNumber}`);
-    answerBox.textContent = answerObj.answer;
-  });
-  gamePromptContainer.classList.add('disable-button');
-  answerContainer.classList.toggle('disable-button');
 }
+
+prepareAllGameQuestions();
+
+//TO DO:
+/* (1) Set up lifelines!
+(2) Set up instrutions modal!
+(3) Set up the welcome screen!
+(4) Do your readME!
+(5) Deploy your project! */

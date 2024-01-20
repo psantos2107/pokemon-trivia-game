@@ -25,7 +25,7 @@
     <main class="game-container">
       <i class="fa-solid fa-arrow-right-arrow-left toggle-aside"></i>
       <section>
-        <div class="header-container">
+        <div class="header-section">
           <figure class="profile-container">
             <img
               class="profile-pic"
@@ -38,8 +38,9 @@
           </figure>
           <header>
             <h1>Pokemon Trivia Challenge!!!</h1>
+            <h2><em>Gotta answer 'em all!</em></h2>
           </header>
-          <div class="game-prompt-container">
+          <div class="game-prompt-container disable-button">
             <p class="game-prompt">LOADING QUESTIONS... PLEASE WAIT</p>
             <button class="start-button">START GAME</button>
           </div>
@@ -49,28 +50,67 @@
         <img
           class="pokemon-image"
           src="https://i.pinimg.com/564x/a4/7d/0e/a47d0e060feb0c946a612ffa5c4ee674.jpg"
+          data-oak="https://i.pinimg.com/564x/cc/30/2b/cc302b79c8333b4e30dd37cbeaf3645e.jpg"
+          data-pikachu="https://i.pinimg.com/564x/a4/7d/0e/a47d0e060feb0c946a612ffa5c4ee674.jpg"
         />
       </figure>
       <section class="bottom-section">
-        <p class="question">This is the question</p>
+        <p class="question">
+          This is where the question will be displayed! The Pokemon in question
+          will also be displayed in the box above!
+        </p>
         <div class="answer-container disable-button">
-          <div class="display-question-level">LEVEL 13: ELITE FOUR AGATHA</div>
+          <div class="display-question-level">Question Number/Level</div>
           <div class="timer">Timer</div>
-          <button class="answer ans1" data-num="1">A:</button>
-          <button class="answer ans2" data-num="2">B:</button>
-          <button class="answer ans3" data-num="3">C:</button>
-          <button class="answer ans4" data-num="4">D:</button>
+          <button class="answer ans1" data-num="1">Answer A</button>
+          <button class="answer ans2" data-num="2">Answer B</button>
+          <button class="answer ans3" data-num="3">Answer C</button>
+          <button class="answer ans4" data-num="4">Answer D</button>
         </div>
       </section>
       <footer>
         <p style="color: white">Change Theme:</p>
         <div class="color-container">
-          <div style="background-color: red" class="theme"></div>
-          <div style="background-color: blue" class="theme"></div>
-          <div style="background-color: green" class="theme"></div>
-          <div style="background-color: yellow" class="theme"></div>
-          <div style="background-color: purple" class="theme"></div>
-          <div style="background-color: pink" class="theme"></div>
+          <div
+            style="background-color: red"
+            class="theme"
+            data-color="red"
+          ></div>
+          <div
+            style="background-color: blue"
+            class="theme"
+            data-color="blue"
+          ></div>
+          <div
+            style="background-color: green"
+            class="theme"
+            data-color="green"
+          ></div>
+          <div
+            style="background-color: yellow"
+            class="theme"
+            data-color="yellow"
+          ></div>
+          <div
+            style="background-color: purple"
+            class="theme"
+            data-color="purple"
+          ></div>
+          <div
+            style="background-color: pink"
+            class="theme"
+            data-color="pink"
+          ></div>
+          <div
+            style="background-color: brown"
+            class="theme"
+            data-color="brown"
+          ></div>
+          <div
+            style="background-color: gray"
+            class="theme"
+            data-color="grey"
+          ></div>
         </div>
       </footer>
     </main>
@@ -101,11 +141,17 @@
         <p class="level lvl1">1: ROUTE ONE</p>
       </div>
       <div class="bottom-button-container">
-        <button class="bottom-button" style="display: block">
+        <button
+          class="bottom-button display-instructions"
+          style="display: block"
+        >
           INSTRUCTIONS
         </button>
-        <button class="bottom-button" style="display: block">RESET GAME</button>
+        <button class="bottom-button reset-game" style="display: block">
+          RESET GAME
+        </button>
       </div>
     </aside>
   </body>
+  <script type="module" src="script.js"></script>
 </html>

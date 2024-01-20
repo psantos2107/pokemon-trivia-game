@@ -35,7 +35,7 @@ button:hover {
   cursor: pointer;
   font-style: italic;
   font-weight: bold;
-  background-color: #de9a8e;
+  background-color: #a19f9f;
   border-width: 20px;
 }
 
@@ -58,7 +58,7 @@ button:hover {
 }
 
 /* stylings for the top section of the page */
-.header-container {
+.header-section {
   background: linear-gradient(to right, #fa2626, #2f000c);
   display: flex;
   justify-content: space-between;
@@ -82,10 +82,13 @@ button:hover {
 
 header {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
 }
 
 h1 {
-  align-self: center;
+  margin-top: auto;
   font-family: 'Pokemon Hollow', sans-serif;
   text-align: center;
   font-size: 2rem;
@@ -95,6 +98,17 @@ h1 {
   border-radius: var(--curvy-border);
   border-width: 5px;
   padding: 5px;
+}
+
+h2 {
+  margin-bottom: auto;
+  margin-top: 5px;
+  font-size: 1.5rem;
+  /* background-color: var(--off-white-block-background);
+  border: var(--border-design);
+  border-radius: var(--curvy-border);
+  border-width: 3px; */
+  padding: 3px;
 }
 
 .game-prompt-container {
@@ -125,7 +139,7 @@ h1 {
   background-color: var(--off-white-block-background);
   border-width: 10px;
   display: block;
-  width: 300px;
+  width: 250px;
   height: auto;
   margin: auto;
   margin-top: 6px;
@@ -139,9 +153,9 @@ h1 {
 }
 
 .question {
-  width: 50%;
+  width: 60%;
   text-align: center;
-  padding: 10px 60px;
+  padding: 10px;
   margin: auto;
   border: var(--border-design);
   border-radius: var(--curvy-border);
@@ -157,7 +171,7 @@ h1 {
   position: relative;
   width: 85%;
   margin: 45px auto 0px auto;
-  min-height: 265px;
+  min-height: 300px;
   max-width: 1230px;
   display: grid;
   grid-template-rows: 1fr 1fr;
@@ -238,8 +252,9 @@ footer p {
 
 .toggle-aside:hover {
   cursor: pointer;
-  background-color: #de9a8e;
+  background-color: #cbc8c8;
   border-width: 8px;
+  border-color: black;
 }
 
 aside {
@@ -303,7 +318,7 @@ aside {
 
 /* media queries to accomodate for full-screen  */
 @media (min-width: 1375px) {
-  .header-container {
+  .header-section {
     justify-content: space-around;
   }
   .profile-pic {
@@ -336,6 +351,12 @@ aside {
     margin-left: 50px;
     padding: 5px;
   }
+  h2 {
+    font-size: 2.2rem;
+  }
+  .profile {
+    font-size: 1.4rem;
+  }
 }
 
 /* classes to be added and removed for page effects */
@@ -356,4 +377,14 @@ aside {
 .disable-button {
   cursor: none;
   pointer-events: none;
+}
+
+.yellow-background {
+  background-color: #fff9c4;
+}
+.green-background {
+  background-color: #4caf50;
+}
+.red-background {
+  background-color: #ff0000;
 }

@@ -10,6 +10,7 @@ let currentQuestionNum = 0;
 let currentStreak = 0;
 let streakRecord = 0;
 let continuingStreak = false;
+let userPokemonRange = 'oldschool';
 //prettier-ignore
 const backgroundStyles = [
   {color: 'red', lighter: '#fa2626', darker: '#2f000c', highlight: '#FF9999' },
@@ -21,7 +22,7 @@ const backgroundStyles = [
   {color: 'brown', lighter: '#dd6119', darker: '#3f2f1d', highlight: '#A98274',},
   {color: 'grey', lighter: '#bdc3c7', darker: '#2c3e50', highlight: '#D3D3D3',},
 ];
-
+const instructionsHTML = document.querySelector('.pop-up-box');
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
 //BASE QUESTION CLASS------
@@ -400,8 +401,12 @@ const bottomSection = document.querySelector('.bottom-section');
 const lifelines = document.querySelector('.lifelines-container');
 const displayQLevel = document.querySelector('.display-question-level');
 const pokeImage = document.querySelector('.pokemon-image');
+const pokemonImgContainer = document.querySelector('.pokemon-image-container');
 const bottomButtonsinAside = document.querySelector('.bottom-button-container');
 const colorContainer = document.querySelector('.color-container');
+const displayInstructions = document.querySelector('.display-instructions');
+const popUpBox = document.querySelector('.pop-up-box');
+const exitButton = document.querySelector('.exit-button');
 
 //
 
@@ -453,7 +458,7 @@ toggleAside.addEventListener('click', function () {
   aside.classList.toggle('translate-away');
   setTimeout(() => {
     aside.classList.toggle('hide-element');
-  }, 350);
+  }, 240);
 });
 
 // toggleAside.addEventListener('mouseenter', function (e) {
@@ -549,6 +554,7 @@ bottomSection.addEventListener('click', function (e) {
 });
 
 bottomButtonsinAside.addEventListener('click', function (e) {
+  const insertedButton = document.querySelector('.inserted-button');
   if (e.target.classList.contains('reset-game')) {
     let userInput = prompt(
       `Are you sure? Your streak will not be recorded, and you'll be presented will all new Pokemon questions! Please type in "yes" or "no". Capitalization doesn't matter.`
@@ -561,7 +567,13 @@ bottomButtonsinAside.addEventListener('click', function (e) {
       alteredInput = userInput.toLowerCase().trimEnd();
     }
     if (alteredInput === 'yes') {
-      resetGame('The game will be reset! Enjoy your new questions, trainer!');
+      answerContainer.classList.add('disable-button');
+      if (insertedButton) {
+        insertedButton.remove();
+      }
+      resetGame(
+        'The game will be reset! Enjoy your new questions, trainer! Click the start button to begin again!'
+      );
       return;
     } else if (alteredInput === 'no') {
       return;
@@ -590,7 +602,7 @@ function resetGame(message) {
   });
   pokeImage.src = pokeImage.dataset.oak;
   gamePrompt.textContent = 'LOADING NEW QUESTIONS! PLEASE WAIT...';
-  prepareAllGameQuestions();
+  prepareAllGameQuestions(userPokemonRange);
   if (playAgain) {
     playAgain.remove();
   }
@@ -696,14 +708,16 @@ function setPokemonQuestionsArr() {
       pokemonQuestionsArr.push(question);
     }
   }
+  console.log(pokemonQuestionsArr);
 }
 
-function prepareAllGameQuestions() {
-  setPokemonNumIDArr('all');
+function prepareAllGameQuestions(pokemonRange) {
+  setPokemonNumIDArr(pokemonRange);
   lifelines.classList.add('disable-button');
   makePokemonDataArray(pokemonNumIDArr)
     .then(pokemonDataValues => {
       globalPokeData = [...pokemonDataValues];
+      console.log(globalPokeData);
       setPokemonQuestionsArr();
       setTimeout(() => {
         gamePromptContainer.classList.remove('disable-button');
@@ -717,11 +731,33 @@ function prepareAllGameQuestions() {
     );
 }
 
-prepareAllGameQuestions();
+function fadeOrBrightenBackGrnd() {
+  headerSection.classList.toggle('decrease-opacity');
+  pokemonImgContainer.classList.toggle('decrease-opacity');
+  bottomSection.classList.toggle('decrease-opacity');
+}
 
-//TO DO:
+displayInstructions.addEventListener('click', function () {
+  fadeOrBrightenBackGrnd(); //refer to function above
+  setTimeout(() => {
+    popUpBox.classList.toggle('display-none');
+  }, 600);
+});
+
+popUpBox.addEventListener('click', function (e) {
+  if (e.target.classList.contains('exit-modal')) {
+    popUpBox.classList.toggle('display-none');
+    fadeOrBrightenBackGrnd();
+  }
+});
+
+prepareAllGameQuestions(userPokemonRange);
+
+//TO DO (that's left:)
 /* (1) Set up lifelines!
-(2) Set up instrutions modal!
-(3) Set up the welcome screen!
+(2) Set up the welcome screen! 
+(3) Set up SETTINGS
 (4) Do your readME!
-(5) Deploy your project! */
+(5) Save and store your images for your project!
+(6) Deploy your project (on Netlify?)
+*/

@@ -23,13 +23,85 @@
   </head>
   <body class="entire-container">
     <main class="game-container">
+      <div class="pop-up-box display-none" style="overflow: scroll">
+        <i class="fa-solid fa-x exit-modal exit-button"></i>
+        <h2 style="text-align: center"><u>INSTRUCTIONS</u></h2>
+        <p style="text-align: center">
+          The goal of this game is to try to get 15 questions correctly! You
+          will be tested on your Pokemon knowledge throughout all generations of
+          Pokemon up to the Alola region. No two quizzes are ever the same!
+          You'll have 30 seconds to answer each question. If you don't answer
+          within the 30 seconds, you lose. There are five types of questions of
+          increasing difficulty:
+        </p>
+        <ol>
+          <li>IDENTIFY THE POKEMON BY THEIR PICTURE</li>
+          <li>IDENTIFY THE POKEMON'S TYPE</li>
+          <li>IDENTIFY THE POKEMON'S NORMAL AND HIDDEN ABILITIES</li>
+          <li>IDENTIFY THE POKEMON'S BASE STATS</li>
+          <li>IDENTIFY THE POKEMON'S HEIGHT AND WEIGHT</li>
+        </ol>
+        <p style="text-align: center">
+          If you successfully answer all fifteen questions, you have the option
+          to continue playing another round of 15 questions. Try to answer as
+          many questions correctly in a row as you can! The sky is the limit!
+          Your longest streak will be recorded in the profile section in the top
+          left corner of the page.
+        </p>
+        <h3 style="text-align: center"><u>LIFELINES</u></h3>
+        <p style="text-align: center">
+          If at any point during the quiz you get stuck, you may use a lifeline!
+          Lifelines may only be used ONCE per round of questions. You will not
+          be penalized for using a lifeline. The two lifelines are detailed
+          below.
+        </p>
+        <ul>
+          <li>
+            <u>50/50:</u> You may use this to eliminate two WRONG choices,
+            leaving the correct answer and one wrong answer.
+          </li>
+          <li>
+            <u>CHANGE THE QUESTION:</u> You may choose to be tested on a
+            DIFFERENT Pokemon than the one presented in front of you. However,
+            this does not change the question type!
+          </li>
+        </ul>
+        <h3 style="text-align: center"><u>CHANGING THE BACKGROUND THEME</u></h3>
+        <p style="text-align: center">
+          You may change the background theme at any time with the row of
+          buttons below! Choose whatever color best fits your mood/personality!
+        </p>
+        <h3 style="text-align: center"><u>CHANGE THE SETTINGS</u></h3>
+        <p style="text-align: center">
+          If, at any time, you want to change the range of Pokemon you want to
+          get tested on, or if you want to change the type of questions you'll
+          encounter, you may access the settings button in the sidebar and fill
+          out the form accordingly. Note, doing this WILL disrupt any streak you
+          are currently on, and you will have to re-start your quiz if you
+          change in the middle of a quiz.
+        </p>
+        <h3 style="text-align: center"><u>RESETTING THE GAME</u></h3>
+        <p style="text-align: center">
+          At any point, you are allowed to reset the game and be tested on a
+          different set of Pokemon. Note, however, that you will be forfeitting
+          your streak if you do. Usually the better choice is to just answer the
+          question or use a lifeline!
+        </p>
+        <p style="text-align: center; font-size: 1.5rem">
+          <strong>GOOD LUCK!</strong>
+        </p>
+        <button class="exit-modal return-to-game">Return to Game!</button>
+      </div>
       <i class="fa-solid fa-arrow-right-arrow-left toggle-aside"></i>
       <section>
         <div class="header-section">
           <figure class="profile-container">
             <img
               class="profile-pic"
-              src="https://i.pinimg.com/564x/4d/11/bf/4d11bfae414ab0cffb11b412fc434c39.jpg"
+              src="https://i.pinimg.com/564x/52/ec/fe/52ecfe9c048d7fbdacb73337cc98cff9.jpg"
+              data-female="https://i.pinimg.com/564x/52/ec/fe/52ecfe9c048d7fbdacb73337cc98cff9.jpg"
+              data-male="https://i.pinimg.com/564x/cf/1b/12/cf1b12b2a7f162277c474b0c7ce23134.jpg"
+              data-pikachu="https://i.pinimg.com/564x/a9/0a/76/a90a76e1044bf08d25c0e9db7f162b1c.jpg"
             />
             <p class="profile">
               Cooltrainer <br />
@@ -146,6 +218,9 @@
           style="display: block"
         >
           INSTRUCTIONS
+        </button>
+        <button class="bottom-button settings" style="display: block">
+          SETTINGS
         </button>
         <button class="bottom-button reset-game" style="display: block">
           RESET GAME

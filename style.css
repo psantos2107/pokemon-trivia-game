@@ -35,8 +35,12 @@ button:hover {
   cursor: pointer;
   font-style: italic;
   font-weight: bold;
-  background-color: #a19f9f;
+  background-color: #ff9999;
   border-width: 20px;
+}
+
+button:active {
+  font-size: 1.5rem;
 }
 
 /* styling for the game containers */
@@ -44,7 +48,7 @@ button:hover {
   display: flex;
   height: 100%;
   width: auto;
-  z-index: 2;
+  z-index: 1;
   /* background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
   background-size: 35%;
   background-repeat: repeat-x;
@@ -64,12 +68,14 @@ button:hover {
   justify-content: space-between;
   width: 100%;
   margin-top: 8px;
+  opacity: 100%;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .profile-pic {
-  width: 140px;
+  width: 120px;
   height: auto;
-  margin-left: 10px;
+  margin-left: 15px;
 }
 
 .profile {
@@ -134,6 +140,8 @@ h2 {
   background-size: contain;
   background-repeat: repeat-x;
   background-position: cover;
+  opacity: 100%;
+  transition: opacity 0.5s ease-in-out;
 }
 .pokemon-image {
   background-color: var(--off-white-block-background);
@@ -150,6 +158,8 @@ h2 {
   background: linear-gradient(to right, #2f000c, #fa2626);
   width: 100%;
   height: auto;
+  opacity: 100%;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .question {
@@ -171,7 +181,7 @@ h2 {
   position: relative;
   width: 85%;
   margin: 45px auto 0px auto;
-  min-height: 300px;
+  min-height: 275px;
   max-width: 1230px;
   display: grid;
   grid-template-rows: 1fr 1fr;
@@ -242,6 +252,7 @@ footer p {
 
 /* aside stylings */
 .toggle-aside {
+  z-index: 3;
   position: absolute;
   top: 50%;
   right: 0em;
@@ -316,14 +327,64 @@ aside {
   border-width: 4px;
 }
 
+.pop-up-box {
+  padding-left: 10px;
+  padding-right: 10px;
+  z-index: 2;
+  height: 60%;
+  width: 65%;
+  border: var(--border-design);
+  border-radius: var(--curvy-border);
+  background-color: var(--off-white-block-background);
+  position: absolute;
+  top: 20%;
+  left: 18%;
+}
+
+.exit-button {
+  position: absolute;
+  top: 2%;
+  left: 1%;
+  z-index: 4;
+  height: 1.2rem;
+  width: 1.2rem;
+  margin-top: 2px;
+  border: solid black 2px;
+  background-color: var(--off-white-block-background);
+}
+
+.exit-button:hover {
+  background-color: rgb(173, 168, 168);
+  border-width: 4px;
+  height: 1.5rem;
+  width: 1.5rem;
+  cursor: pointer;
+}
+
+.return-to-game {
+  display: block;
+  width: fit-content;
+  margin: 5px auto 5px auto;
+  border: solid black 3px;
+}
+
+.return-to-game:hover {
+  border-width: 5px;
+  background-color: rgb(173, 168, 168);
+}
+
+.return-to-game:active {
+  font-size: 1rem;
+}
+
 /* media queries to accomodate for full-screen  */
 @media (min-width: 1375px) {
   .header-section {
     justify-content: space-around;
   }
   .profile-pic {
-    width: 200px;
     margin-right: 40px;
+    width: 125px;
   }
 }
 
@@ -337,7 +398,7 @@ aside {
     font-size: 1.5rem;
   }
   .display-question-level {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
   }
   .answer {
     font-size: 1.4rem;
@@ -356,6 +417,19 @@ aside {
   }
   .profile {
     font-size: 1.4rem;
+  }
+  .pop-up-box p,
+  .pop-up-box ul,
+  .pop-up-box ol {
+    font-size: 1.3rem;
+  }
+
+  .pop-up-box h3 {
+    font-size: 1.5rem;
+  }
+
+  .return-to-game {
+    font-size: 1.3rem;
   }
 }
 
@@ -387,4 +461,12 @@ aside {
 }
 .red-background {
   background-color: #ff0000;
+}
+
+.display-none {
+  display: none;
+}
+
+.decrease-opacity {
+  opacity: 30%;
 }

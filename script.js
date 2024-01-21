@@ -1,5 +1,4 @@
 'use strict';
-
 import confetti from 'https://cdn.skypack.dev/canvas-confetti';
 
 //----SECTION 1: GLOBAL VARIABLES and query selectors ----------------------------------------------------
@@ -22,7 +21,7 @@ const backgroundStyles = [
   {color: 'brown', lighter: '#dd6119', darker: '#3f2f1d', highlight: '#A98274',},
   {color: 'grey', lighter: '#bdc3c7', darker: '#2c3e50', highlight: '#D3D3D3',},
 ];
-const instructionsHTML = document.querySelector('.pop-up-box');
+const instructionsHTML = document.querySelector('.pop-up-box').innerHTML;
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
 //BASE QUESTION CLASS------
@@ -429,9 +428,9 @@ function renderQuestionAndAnswers() {
   pokeImage.src = currentPokeQuestion.pokeData.sprites.front_default;
   displayQLevel.textContent = `LVL ${currentLvl.textContent}`;
   if (previousLvl) {
-    previousLvl.classList.toggle('current-level');
+    previousLvl.classList.remove('current-level');
   }
-  currentLvl.classList.toggle('current-level'); //currentLvl = level 1
+  currentLvl.classList.add('current-level'); //currentLvl = level 1
   questionBox.textContent = currentPokeQuestion.questionPrompt;
   answerArr.forEach(answerObj => {
     const answerBox = document.querySelector(`.ans${answerObj.answerNumber}`);
@@ -471,7 +470,10 @@ toggleAside.addEventListener('click', function () {
 
 gamePromptContainer.addEventListener('click', function (e) {
   if (e.target.tagName === 'BUTTON') {
-    lifelines.classList.toggle('disable-button');
+    document.querySelectorAll('.lifeline').forEach(lifeline => {
+      lifeline.classList.remove('disable-button');
+    });
+    lifelines.classList.remove('disable-button');
     renderQuestionAndAnswers();
   }
 });
@@ -500,6 +502,7 @@ answerContainer.addEventListener('click', function (e) {
     //setTimeOut for dramatic effect
     setTimeout(() => {
       e.target.classList.remove('yellow-background');
+      lifelines.classList.add('disable-button');
       //if player chose the correct answer...
       if (chosenAnswerObj.isCorrect) {
         e.target.classList.add('green-background'); //to signify if someone is correct
@@ -532,12 +535,14 @@ answerContainer.addEventListener('click', function (e) {
 
 bottomSection.addEventListener('click', function (e) {
   if (e.target.classList.contains('next-question')) {
+    lifelines.classList.remove('disable-button');
     const answerBoxes = document.querySelectorAll('.answer');
     e.target.remove(); //removes the button that was inserted
     //clears all answerboxes of their background color
     answerBoxes.forEach(answerBox => {
       answerBox.classList.remove('red-background');
       answerBox.classList.remove('green-background');
+      answerBox.classList.remove('strikethrough');
     });
     renderQuestionAndAnswers(); //displays the next question and set of answers
   } else if (e.target.classList.contains('play-again')) {
@@ -596,6 +601,7 @@ function resetGame(message) {
     answer.textContent = `Answer ${alphabetArr[i]}`;
     answer.classList.remove('red-background');
     answer.classList.remove('green-background');
+    answer.classList.remove('strikethrough');
   });
   levels.forEach(level => {
     level.classList.remove('current-level');
@@ -740,6 +746,7 @@ function fadeOrBrightenBackGrnd() {
 displayInstructions.addEventListener('click', function () {
   fadeOrBrightenBackGrnd(); //refer to function above
   setTimeout(() => {
+    popUpBox.innerHTML = instructionsHTML;
     popUpBox.classList.toggle('display-none');
   }, 600);
 });
@@ -751,10 +758,48 @@ popUpBox.addEventListener('click', function (e) {
   }
 });
 
+lifelines.addEventListener('click', function (e) {
+  if (e.target.classList.contains('fifty-fifty')) {
+    const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1];
+    const wrongAnswers = currentPokeQuestion.answers.filter(
+      answer => answer.isCorrect === false
+    );
+    wrongAnswers.pop();
+    wrongAnswers.forEach(answer => {
+      const answerBox = document.querySelector(`.ans${answer.answerNumber}`);
+      answerBox.classList.add('strikethrough');
+    });
+    e.target.classList.add('disable-button');
+  }
+
+  if (e.target.classList.contains('change-question')) {
+    let newQuestion = {};
+    if (currentQuestionNum <= 3) {
+      newQuestion = new pictureQuestion(globalPokeData.at(-1));
+    } else if (currentQuestionNum > 3 && currentQuestionNum <= 6) {
+      newQuestion = new typeQuestion(globalPokeData.at(-1));
+    } else if (currentQuestionNum > 6 && currentQuestionNum <= 9) {
+      newQuestion = new abilitiesQuestion(globalPokeData.at(-1));
+    } else if (currentQuestionNum > 9 && currentQuestionNum <= 12) {
+      newQuestion = new statsQuestion(globalPokeData.at(-1));
+    } else if (currentQuestionNum > 12 && currentQuestionNum <= 15) {
+      newQuestion = new heightAndWeightQuestion(globalPokeData.at(-1));
+    }
+    pokemonQuestionsArr.splice(currentQuestionNum - 1, 1, newQuestion);
+    currentQuestionNum--;
+    answerContainer.classList.add('disable-button');
+    e.target.classList.add('disable-button');
+    renderQuestionAndAnswers();
+  }
+});
+
+function updateSettings() {
+  //...to be implemented later
+}
 prepareAllGameQuestions(userPokemonRange);
 
 //TO DO (that's left:)
-/* (1) Set up lifelines!
+/*
 (2) Set up the welcome screen! 
 (3) Set up SETTINGS
 (4) Do your readME!

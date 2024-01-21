@@ -40,7 +40,7 @@ button:hover {
 }
 
 button:active {
-  font-size: 1.5rem;
+  font-size: large;
 }
 
 /* styling for the game containers */
@@ -134,9 +134,21 @@ h2 {
   margin-bottom: 15px;
 }
 
+.start-button:active {
+  font-size: 1rem;
+}
+
 /* stylings for the middle section of the page */
 .pokemon-image-container {
-  background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
+  /* background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg'); */
+  background: linear-gradient(
+    to right,
+    black 0%,
+    rgb(82, 81, 81) 25%,
+    black 50%,
+    rgb(82, 81, 81) 75%,
+    black 100%
+  );
   background-size: contain;
   background-repeat: repeat-x;
   background-position: cover;
@@ -197,6 +209,10 @@ h2 {
   font-size: 1.1rem;
   line-height: 1.4rem;
   overflow: scroll;
+}
+
+.answer:active {
+  font-size: 1.5rem;
 }
 
 .display-question-level {
@@ -296,6 +312,10 @@ aside {
 .lifeline {
   background-color: var(--off-white-block-background);
   border-width: 4px;
+}
+
+.lifeline:hover {
+  border-width: 12px;
 }
 
 .question-levels {
@@ -469,4 +489,9 @@ aside {
 
 .decrease-opacity {
   opacity: 30%;
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  background-color: rgb(228, 62, 62);
 }

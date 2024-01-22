@@ -227,6 +227,34 @@
         </button>
       </div>
     </aside>
+<!-- HERE I'M STORING THE HTML FOR THE CONTENT INSIDE THE SETTINGS CONTAINER -->
+    <div class="settings-HTML display-none">
+        <i class="fa-solid fa-x exit-modal exit-button"></i>
+        <h2 style="text-align: center"><u>SETTINGS</u></h2>
+        <p style="text-align: center">
+          This is the settings menu. Here, you can adjust some of the parameters of the game. Please choose the type of questions you want, and the range of Pokemon
+          you want to be tested on below! Note: changing settings WILL restart your game, and any streak you have WILL be lost! 
+        </p>
+        <div class="setting-selections">
+          <label for="settings-range">Which Pokemon would you like to be tested on?</label>
+          <select id="settings-range" name="range">
+            <option value="oldschool">Pokemon from Kanto to Sinnoh Region</option>
+            <option value="newschool">Pokemon from Unova to Alola Region</option>
+            <option value="all">All Pokemon from Kanto to Alola Region</option>
+          </select>
+          <label for="settings-question-type">What type of questions would you like to be given?</label>
+            <select id="settings-question-type" name="question-type">
+              <option value="all">All Types of Questions!</option>
+              <option value="picture">Picture Questions Only!</option>
+              <option value="type">Type Questions Only!</option>
+              <option value="abilities">Ability Questions Only!</option>
+              <option value="stats">Base Stat Questions Only!</option>
+              <option value="height-and-weight">Height & Weight Questions Only!</option>
+            </select>
+            <button class = "submit-settings ">SUBMIT NEW CHANGES</button>
+            <button class = "submit-no-change exit-modal">EXIT WITHOUT CHANGES</button>
+          </form>
+    </div>
   </body>
   <script type="module" src="script.js"></script>
 </html>

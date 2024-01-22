@@ -361,6 +361,42 @@ aside {
   left: 18%;
 }
 
+.setting-selections {
+  margin-top: 20px;
+}
+
+label {
+  display: block;
+  width: fit-content;
+  margin: auto;
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+
+select {
+  font-family: 'Gloria Hallelujah', cursive;
+  text-align: center;
+  display: block;
+  width: 80%;
+  margin: auto;
+}
+
+.setting-selections button {
+  border: solid black 2px;
+  margin: 30px auto 0px auto;
+  width: 50%;
+  display: block;
+}
+
+.setting-selections button:hover {
+  border-width: 5px;
+  background-color: rgb(173, 168, 168);
+}
+
+.setting-selections button:active {
+  font-size: 1rem;
+}
+
 .exit-button {
   position: absolute;
   top: 2%;
@@ -451,6 +487,30 @@ aside {
   .return-to-game {
     font-size: 1.3rem;
   }
+
+  label {
+    font-size: 1.4rem;
+    margin-top: 10px;
+  }
+
+  select {
+    font-size: 1.3rem;
+    width: 80%;
+  }
+
+  .setting-selections button {
+    width: 60%;
+    font-size: 1.3rem;
+  }
+
+  .setting-selections button:hover {
+    border-width: 5px;
+    background-color: rgb(173, 168, 168);
+  }
+
+  .setting-selections button:active {
+    font-size: 1.2rem;
+  }
 }
 
 /* classes to be added and removed for page effects */
@@ -469,6 +529,11 @@ aside {
 }
 
 .disable-button {
+  cursor: none;
+  pointer-events: none;
+}
+
+.disable-all {
   cursor: none;
   pointer-events: none;
 }

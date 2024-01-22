@@ -10,6 +10,7 @@ let currentStreak = 0;
 let streakRecord = 0;
 let continuingStreak = false;
 let userPokemonRange = 'oldschool';
+let questionTypePreference = 'all';
 //prettier-ignore
 const backgroundStyles = [
   {color: 'red', lighter: '#fa2626', darker: '#2f000c', highlight: '#FF9999' },
@@ -22,6 +23,8 @@ const backgroundStyles = [
   {color: 'grey', lighter: '#bdc3c7', darker: '#2c3e50', highlight: '#D3D3D3',},
 ];
 const instructionsHTML = document.querySelector('.pop-up-box').innerHTML;
+const settingsHTML = document.querySelector('.settings-HTML').innerHTML;
+document.querySelector('.settings-HTML').remove();
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
 //BASE QUESTION CLASS------
@@ -406,6 +409,7 @@ const colorContainer = document.querySelector('.color-container');
 const displayInstructions = document.querySelector('.display-instructions');
 const popUpBox = document.querySelector('.pop-up-box');
 const exitButton = document.querySelector('.exit-button');
+const settings = document.querySelector('.settings');
 
 //
 
@@ -608,7 +612,7 @@ function resetGame(message) {
   });
   pokeImage.src = pokeImage.dataset.oak;
   gamePrompt.textContent = 'LOADING NEW QUESTIONS! PLEASE WAIT...';
-  prepareAllGameQuestions(userPokemonRange);
+  prepareAllGameQuestions(userPokemonRange, questionTypePreference);
   if (playAgain) {
     playAgain.remove();
   }
@@ -694,37 +698,63 @@ function shuffleArray(arr) {
   return shuffledArr;
 }
 
-function setPokemonQuestionsArr() {
+function setPokemonQuestionsArr(preference) {
   for (let i = 0; i < 15; i++) {
     let question;
-    if (i < 3) {
-      question = new pictureQuestion(globalPokeData[i]);
-      pokemonQuestionsArr.push(question);
-    } else if (i >= 3 && i < 6) {
-      question = new typeQuestion(globalPokeData[i]);
-      pokemonQuestionsArr.push(question);
-    } else if (i >= 6 && i < 9) {
-      question = new abilitiesQuestion(globalPokeData[i]);
-      pokemonQuestionsArr.push(question);
-    } else if (i >= 9 && i < 12) {
-      question = new statsQuestion(globalPokeData[i]);
-      pokemonQuestionsArr.push(question);
-    } else if (i >= 12 && i < 15) {
-      question = new heightAndWeightQuestion(globalPokeData[i]);
-      pokemonQuestionsArr.push(question);
+    if (preference === 'all') {
+      if (i < 3) {
+        question = new pictureQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 3 && i < 6) {
+        question = new typeQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 6 && i < 9) {
+        question = new abilitiesQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 9 && i < 12) {
+        question = new statsQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+      } else if (i >= 12 && i < 15) {
+        question = new heightAndWeightQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+      }
+    }
+    switch (preference) {
+      case 'picture':
+        question = new pictureQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+        break;
+      case 'type':
+        question = new typeQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+        break;
+      case 'abilities':
+        question = new abilitiesQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+        break;
+      case 'stats':
+        question = new statsQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+        break;
+      case 'height-and-weight':
+        question = new heightAndWeightQuestion(globalPokeData[i]);
+        pokemonQuestionsArr.push(question);
+        break;
+      default:
+        break;
     }
   }
   console.log(pokemonQuestionsArr);
 }
 
-function prepareAllGameQuestions(pokemonRange) {
+function prepareAllGameQuestions(pokemonRange, typePreference) {
   setPokemonNumIDArr(pokemonRange);
   lifelines.classList.add('disable-button');
   makePokemonDataArray(pokemonNumIDArr)
     .then(pokemonDataValues => {
       globalPokeData = [...pokemonDataValues];
       console.log(globalPokeData);
-      setPokemonQuestionsArr();
+      setPokemonQuestionsArr(typePreference);
       setTimeout(() => {
         gamePromptContainer.classList.remove('disable-button');
         gamePrompt.textContent = 'QUESTIONS LOADED! CLICK THE BUTTON TO PLAY!';
@@ -743,10 +773,34 @@ function fadeOrBrightenBackGrnd() {
   bottomSection.classList.toggle('decrease-opacity');
 }
 
+function deactivateAllButtons() {
+  lifelines.classList.add('disable-all');
+  bottomButtonsinAside.classList.add('disable-all');
+  answerContainer.classList.add('disable-all');
+  gamePromptContainer.classList.add('disable-all');
+}
+
+function reactivateAllButtons() {
+  lifelines.classList.remove('disable-all');
+  bottomButtonsinAside.classList.remove('disable-all');
+  answerContainer.classList.remove('disable-all');
+  gamePromptContainer.classList.remove('disable-all');
+}
+
 displayInstructions.addEventListener('click', function () {
   fadeOrBrightenBackGrnd(); //refer to function above
+  deactivateAllButtons();
   setTimeout(() => {
     popUpBox.innerHTML = instructionsHTML;
+    popUpBox.classList.toggle('display-none');
+  }, 600);
+});
+
+settings.addEventListener('click', function () {
+  fadeOrBrightenBackGrnd();
+  deactivateAllButtons();
+  setTimeout(() => {
+    popUpBox.innerHTML = settingsHTML;
     popUpBox.classList.toggle('display-none');
   }, 600);
 });
@@ -755,6 +809,21 @@ popUpBox.addEventListener('click', function (e) {
   if (e.target.classList.contains('exit-modal')) {
     popUpBox.classList.toggle('display-none');
     fadeOrBrightenBackGrnd();
+    reactivateAllButtons();
+  }
+  if (e.target.classList.contains('submit-settings')) {
+    const settingsRange = document.querySelector('#settings-range');
+    const settingsQuestionType = document.querySelector(
+      '#settings-question-type'
+    );
+    userPokemonRange = settingsRange.value;
+    questionTypePreference = settingsQuestionType.value;
+    popUpBox.classList.toggle('display-none');
+    fadeOrBrightenBackGrnd();
+    reactivateAllButtons();
+    resetGame(
+      'Game is reset with all question preferences and pokemon range preferences updated! Click the start button on the top right corner to start! Enjoy the game!'
+    );
   }
 });
 
@@ -793,10 +862,7 @@ lifelines.addEventListener('click', function (e) {
   }
 });
 
-function updateSettings() {
-  //...to be implemented later
-}
-prepareAllGameQuestions(userPokemonRange);
+prepareAllGameQuestions(userPokemonRange, questionTypePreference);
 
 //TO DO (that's left:)
 /*

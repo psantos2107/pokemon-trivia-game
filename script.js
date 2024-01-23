@@ -5,12 +5,16 @@ import confetti from 'https://cdn.skypack.dev/canvas-confetti';
 let globalPokeData = []; //will contain data for up to 30 different pokemon
 let pokemonNumIDArr = []; //will contain the IDs of the pokemon that will be used to fetch data from pokeAPI
 let pokemonQuestionsArr = []; //will contain questions to be used for the game
-let currentQuestionNum = 0;
-let currentStreak = 0;
-let streakRecord = 0;
-let continuingStreak = false;
-let userPokemonRange = 'oldschool';
-let questionTypePreference = 'all';
+let currentQuestionNum = 0; //to keep track of what question the player is on
+let currentStreak = 0; //to keep track of how many questions in a row a player has gotten correct in a row currently
+let streakRecord = 0; //best record of the player
+let continuingStreak = false; //to describe the state of whether a play has an ongoing streak
+let userPokemonRange = 'oldschool'; //user's preference for the pokemon range
+let questionTypePreference = 'all'; //user's preference for the type of questions desired
+let playerTag = '';
+let playerName = '';
+
+//used to organize the different "themes" that I want to implement
 //prettier-ignore
 const backgroundStyles = [
   {color: 'red', lighter: '#fa2626', darker: '#2f000c', highlight: '#FF9999' },
@@ -22,46 +26,57 @@ const backgroundStyles = [
   {color: 'brown', lighter: '#dd6119', darker: '#3f2f1d', highlight: '#A98274',},
   {color: 'grey', lighter: '#bdc3c7', darker: '#2c3e50', highlight: '#D3D3D3',},
 ];
+
+const introScreenFormHTML = document.querySelector(
+  '.intro-screen-form-HTML'
+).innerHTML;
+//grabbed the inner HTML from some elements in the HTML page so that it can be used for the pop-up boxes when clicking on the settings or instructions button on the aside
 const instructionsHTML = document.querySelector('.pop-up-box').innerHTML;
 const settingsHTML = document.querySelector('.settings-HTML').innerHTML;
-document.querySelector('.settings-HTML').remove();
+document.querySelector('.settings-HTML').remove(); //removed this node to prevent multiple elements from having the same IDs
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
 //BASE QUESTION CLASS------
+//question class used to model all the different types of questions
 class Question {
   constructor(pokeData) {
-    this.pokeData = pokeData;
-    this.answerIndex = shuffleArray([1, 2, 3, 4]);
+    this.pokeData = pokeData; //pokemon data from the pokeAPI be used to formulate each question and its answers
+    this.answerIndex = shuffleArray([1, 2, 3, 4]); //indices will be used to determine where in the DOM answer choices will be placed
   }
 
+  //other data from the globalPokeData will be used to devise a question's incorrect choices. Thus, each question class will have the ability to utilize data from any pokemon in the globalPokeData array in order to create wrong answers for the question
   makeThreeRandomIndicesArray() {
     const randomIndicesArr = [];
     for (let i = 0; i < 3; i++) {
-      let num = createRandomNumber(0, 29);
+      let num = createRandomNumber(0, 28);
+      //ensures that there won't be duplicates of the correct answer in the wrong answer index array
       while (randomIndicesArr.some(index => num === index)) {
-        num = createRandomNumber(0, 29);
+        num = createRandomNumber(0, 28);
       }
       randomIndicesArr.push(num);
     }
+
     return randomIndicesArr;
   }
 
+  //creates a copy of the globalPokeData array WITHOUT the correct answer
   createWrongAnswerPokeDataArray(pokeData) {
     return [...globalPokeData].filter(data => data.name !== pokeData.name);
   }
 
+  //in order to capitalize strings appropriately
   capitalizeString(string) {
     return string[0].toUpperCase() + string.slice(1);
   }
 
   createIncorrectAnswerArray(pokeData, retrieveFunction, ansIndex) {
     let incorrectAnswers = [];
-
     //produces an array of pokemon data to be used to derive wrong answers from
     //prettier-ignore
     const wrongAnswerPokeDataArr = this.createWrongAnswerPokeDataArray(pokeData);
 
-    const randomIndices = this.makeThreeRandomIndicesArray(); //creates an array of three random numbers
+    //creates an array of three random indices which will serve as indices to create incorrect answers from the wrongAnswerPokeData array
+    const randomIndices = this.makeThreeRandomIndicesArray();
     randomIndices.forEach((randomIndex, i) => {
       //creation of the incorrect answer object
       const incorrectAnswer = {
@@ -100,11 +115,14 @@ class pictureQuestion extends Question {
 
   //sets the answers for pictureQuestion based on the pokeData
   set answers(pokeData) {
+    //creation of the correct answer object. note, each answer object will have isCorrect (denoting if an answer is correct), the actual answer, and the answerNumber (this will determine where the answer will be placed in the DOM)
     const correctAnswer = {
       isCorrect: true,
       answer: this.capitalizeString(pokeData.name),
       answerNumber: this.answerIndex[0],
     };
+
+    //expect an array of three answer objects that will serve as the question's incorrect answers
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
       this.retrievePokemonName.bind(this),
@@ -127,6 +145,7 @@ class pictureQuestion extends Question {
 
 //POKEMON TYPE QUESTION SUBCLASS------------------------------------
 class typeQuestion extends Question {
+  //pokemonTypes contains all types available in the pokemon world. This will be used to generate incorrect response for the typeQuestion class
   //prettier-ignore
   pokemonTypes = ['Normal', 'Fire', 'Water', 'Electric', 'Grass', 'Ice', 'Fighting', 'Poison', 'Ground', 'Flying', 'Psychic', 'Bug', 'Rock', 'Ghost', 'Dragon', 'Dark', 'Steel', 'Fairy'];
 
@@ -136,6 +155,7 @@ class typeQuestion extends Question {
     this.answers = pokeData;
   }
 
+  //function to be used to ensure no two answer objects will contain the same answer
   correctForDuplicateAnswers(arr) {
     let answerSet = new Set(arr);
     while (answerSet.size < 4) {
@@ -202,7 +222,7 @@ class typeQuestion extends Question {
       ...incorrectAnswerStringArr,
     ]);
 
-    //after you get the array of answers, then map those answers into answer objects. and store the resulting array of answer objects into this._answers
+    //after you get the array of answer responses, then map those answer responses into answer objects. and store the resulting array of answer objects into this._answers
     this._answers = fullResponseStringArr.map((response, i) => {
       return {
         isCorrect: response === correctAnswer,
@@ -271,6 +291,7 @@ class statsQuestion extends Question {
     this.answers = pokeData;
   }
 
+  //like in the above subclass, this retrieves the base stats off the provided pokedata and transforms it into a string to be used in the answer objects
   retrieveBaseStats(pokeData) {
     return pokeData.stats.reduce((str, entry) => {
       return (str += `${this.capitalizeString(entry.stat.name)}: ${
@@ -283,6 +304,7 @@ class statsQuestion extends Question {
     return this._questionPrompt;
   }
 
+  //set the question prompt based on question type and pokedata
   set questionPrompt(pokeData) {
     this._questionPrompt = `Which of the following answers displays the correct base stats for the pokemon, ${this.capitalizeString(
       pokeData.name
@@ -294,18 +316,19 @@ class statsQuestion extends Question {
   }
 
   set answers(pokeData) {
+    //again, grab the correct answer
     const correctAnswer = {
       isCorrect: true,
       answer: this.retrieveBaseStats(pokeData),
       answerNumber: this.answerIndex[0],
     };
-
+    //again, grab all the incorrect answers
     const incorrectAnswers = this.createIncorrectAnswerArray(
       pokeData,
       this.retrieveBaseStats.bind(this),
       [...this.answerIndex]
     );
-
+    //sets the array of all the answers, both incorrect and correct
     this._answers = [correctAnswer, ...incorrectAnswers];
   }
 }
@@ -410,7 +433,9 @@ const displayInstructions = document.querySelector('.display-instructions');
 const popUpBox = document.querySelector('.pop-up-box');
 const exitButton = document.querySelector('.exit-button');
 const settings = document.querySelector('.settings');
-
+const gameContainer = document.querySelector('.game-container');
+const entireContainer = document.querySelector('.entire-container');
+const profilePic = document.querySelector('.profile-pic');
 //
 
 function insertButton(buttonText, buttonClass) {
@@ -453,7 +478,7 @@ function renderWinScreen() {
 
 function updateAndRenderStreak() {
   streakRecord = currentStreak > streakRecord ? currentStreak : streakRecord;
-  profile.innerHTML = ` Cooltrainer <br/> Paul <br/> Record Streak: ${streakRecord}`;
+  profile.innerHTML = ` ${playerTag} <br/> ${playerName} <br/> Record Streak: ${streakRecord}`;
 }
 
 //toggle button
@@ -461,7 +486,7 @@ toggleAside.addEventListener('click', function () {
   aside.classList.toggle('translate-away');
   setTimeout(() => {
     aside.classList.toggle('hide-element');
-  }, 240);
+  }, 450);
 });
 
 // toggleAside.addEventListener('mouseenter', function (e) {
@@ -577,6 +602,7 @@ bottomButtonsinAside.addEventListener('click', function (e) {
     }
     if (alteredInput === 'yes') {
       answerContainer.classList.add('disable-button');
+      gamePromptContainer.classList.add('disable-button');
       if (insertedButton) {
         insertedButton.remove();
       }
@@ -598,6 +624,8 @@ function resetGame(message) {
   globalPokeData.length = 0; //clear pokedata array
   pokemonNumIDArr.length = 0; //clear pokemonNum ID array
   pokemonQuestionsArr.length = 0; //clear pokeQuestions array
+  currentStreak = 0;
+  continuingStreak = false;
   questionBox.textContent = message;
   displayQLevel.textContent = 'Question Level will go here!';
   answers.forEach((answer, i) => {
@@ -687,6 +715,7 @@ function setPokemonNumIDArr(chosenRegion) {
     pokemonNumIDArr.push(num);
   }
   pokemonNumIDArr = correctForDuplicateIDs(pokemonNumIDArr, min, max);
+  console.log(pokemonNumIDArr);
 }
 
 function shuffleArray(arr) {
@@ -821,6 +850,8 @@ popUpBox.addEventListener('click', function (e) {
     popUpBox.classList.toggle('display-none');
     fadeOrBrightenBackGrnd();
     reactivateAllButtons();
+    streakRecord = 0;
+    profile.innerHTML = ` ${playerTag} <br/> ${playerName} <br/> Record Streak: ${streakRecord}`;
     resetGame(
       'Game is reset with all question preferences and pokemon range preferences updated! Click the start button on the top right corner to start! Enjoy the game!'
     );
@@ -862,13 +893,138 @@ lifelines.addEventListener('click', function (e) {
   }
 });
 
-prepareAllGameQuestions(userPokemonRange, questionTypePreference);
+//--------INTRO SCREEN LOGIC AND INITIAL CODE EXECUTION----------------
 
-//TO DO (that's left:)
-/*
-(2) Set up the welcome screen! 
-(3) Set up SETTINGS
-(4) Do your readME!
-(5) Save and store your images for your project!
-(6) Deploy your project (on Netlify?)
-*/
+//Promisifying setTimeout to avoid nested callbacks when doing the intro screen welcome greetings
+function wait(seconds) {
+  return new Promise(resolve => {
+    setTimeout(resolve, seconds * 1000);
+  });
+}
+
+//selecting the container and intro screen text in the intro screen
+const introScreen = document.querySelector('.intro-screen');
+const introScreenText = document.querySelector('.intro-screen-text');
+
+//fade in the orginal
+introScreenText.classList.add('fade-in');
+wait(1.5) //wait 1.5 seconds, then fade out to show the next message
+  .then(() => {
+    introScreenText.classList.add('fade-out');
+    introScreenText.classList.remove('fade-in');
+    return wait(2);
+  })
+  .then(() => {
+    introScreenText.innerHTML =
+      '<p class="welcome-statement">In this game, we will be testing your knowledge on Pokemon! </p>';
+    introScreenText.classList.add('fade-in');
+    introScreenText.classList.remove('fade-out');
+    return wait(2);
+  }) //wait 2 seconds, then fade out to show the next message
+  .then(() => {
+    introScreenText.classList.add('fade-out');
+    introScreenText.classList.remove('fade-in');
+    return wait(2);
+  })
+  .then(() => {
+    introScreenText.innerHTML =
+      '<p class="welcome-statement">You will be given 15 questions to answer per round! Questions can range from identifying Pokemon images, Pokemon types, Pokemon abilities, and MORE!</p>';
+    introScreenText.classList.add('fade-in');
+    introScreenText.classList.remove('fade-out');
+    return wait(2);
+  })
+  .then(() => {
+    introScreenText.classList.add('fade-out');
+    introScreenText.classList.remove('fade-in');
+    return wait(2);
+  })
+  .then(() => {
+    introScreenText.innerHTML =
+      '<p class="welcome-statement">You will be tested on all Pokemon spanning multiple generations! And plus, each test will always be different!</p>';
+    introScreenText.classList.add('fade-in');
+    introScreenText.classList.remove('fade-out');
+    return wait(2);
+  })
+  .then(() => {
+    introScreenText.classList.add('fade-out');
+    introScreenText.classList.remove('fade-in');
+    return wait(2);
+  })
+  .then(() => {
+    introScreenText.innerHTML =
+      '<p class="welcome-statement">DO YOU HAVE WHAT IT TAKES TO BE A POKETRIVIA MASTER? LETS FIND OUT!</p>';
+    introScreenText.classList.add('fade-in');
+    introScreenText.classList.remove('fade-out');
+  })
+  .then(() => {
+    introScreenText.classList.add('fade-out');
+    introScreenText.classList.remove('fade-in');
+    return wait(1);
+  })
+  .then(() => {
+    introScreenText.innerHTML = introScreenFormHTML;
+    introScreenText.classList.add('fade-in');
+    introScreenText.classList.remove('fade-out');
+  })
+  .catch(err => {
+    console.log(err.message);
+  });
+
+introScreen.addEventListener('click', function (e) {
+  if (e.target.tagName === 'BUTTON') {
+    const inputtedTag = document.querySelector('#trainer-tag');
+    const inputtedName = document.querySelector('#intro-name-form');
+    const inputtedIcon = document.querySelector('#trainer-icon');
+    const inputtedRange = document.querySelector('#intro-screen-range');
+    const inputtedQType = document.querySelector('#intro-question-type');
+    playerTag = inputtedTag.value;
+    playerName = inputtedName.value;
+    userPokemonRange = inputtedRange.value;
+    questionTypePreference = inputtedQType.value;
+    profilePic.src = profilePic.dataset[inputtedIcon.value];
+    console.log(profilePic.src);
+    profile.innerHTML = ` ${playerTag} <br/> ${playerName}`;
+    resetGame(
+      'Welcome trainer! Please click on the start button on the top right corner to begin your game! Be sure to read the instructions in the sidebar before you play. You may change settings via the button in the sidebar on the right. Good luck! -Prof Oak'
+    );
+    wait(0)
+      .then(() => {
+        introScreenText.classList.add('fade-out');
+        introScreenText.classList.remove('fade-in');
+        return wait(2);
+      })
+      .then(() => {
+        introScreenText.innerHTML = `<p class="welcome-statement"> You'll do great, ${playerName}. Go for the longest streak you can! The sky is the limit!`;
+        introScreenText.classList.add('fade-in');
+        introScreenText.classList.remove('fade-out');
+        return wait(2);
+      })
+      .then(() => {
+        introScreen.classList.add('fade-out');
+        return wait(0.5);
+      })
+      .then(() => {
+        introScreen.style.display = 'none';
+        return wait(2);
+      })
+      .then(() => {
+        gameContainer.classList.remove('display-none');
+        aside.classList.remove('display-none');
+        gameContainer.classList.add('fade-in');
+        aside.classList.add('fade-in');
+      })
+      .catch(err => {
+        console.log(err.message);
+      });
+  }
+});
+
+//-----CODE EXECUTION WITH THE INTRO SCREEN----------------
+
+//TO DO:
+// (1) Finish the timer, add the header to the intro screen! (Maybe add variables to local storage?), embed music?
+// (2) Clean up code
+// (3) Add comments at the appropriate spots
+// (4) Save and store your images for your project in the images folder and re-route your photos accordingly!
+// (5) Deploy your project (on Github!)
+// (6) Turn in the project!

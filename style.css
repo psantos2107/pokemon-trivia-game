@@ -10,7 +10,7 @@ html {
   /* background: linear-gradient(to right, #2f000c, #fa2626); */
   font-family: 'Gloria Hallelujah', cursive;
   min-height: 100vh;
-  background: black;
+  background: rgb(0, 0, 0);
 }
 
 * {
@@ -55,10 +55,59 @@ button:active {
   background-position: cover; */
 }
 
+/* styling for the intro screen*/
+
+.intro-screen {
+  display: flex;
+  align-items: center;
+  height: 70vh;
+  width: 80vw;
+  max-width: 1200px;
+  min-width: 700px;
+  margin: 8% auto 8% auto;
+  background-color: var(--off-white-block-background);
+  border-radius: var(--curvy-border);
+  border: solid rgb(84, 84, 84) 5px;
+}
+
+.prof-oak {
+  height: 80%;
+  width: auto;
+  margin-left: 20px;
+  display: block;
+}
+
+.intro-screen-text {
+  margin-left: 3%;
+  margin-right: 2%;
+  /* font-size: 2.2rem; */
+  opacity: 0%;
+  text-align: center;
+  max-height: 80%;
+  overflow: scroll;
+}
+
+.intro-screen-forms {
+  /* display: block; */
+  margin-right: 10px;
+}
+
+.intro-screen-forms > * {
+  display: inline-block;
+  width: fit-content;
+  margin: auto;
+}
+
+.welcome-statement {
+  font-size: 2.6rem;
+}
+
 .game-container {
   width: 100%;
   min-width: 815px;
+  min-height: 100vh;
   position: relative;
+  opacity: 0%;
 }
 
 /* stylings for the top section of the page */
@@ -67,7 +116,8 @@ button:active {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-top: 8px;
+  height: 50%
+  margin-top: 10px;
   opacity: 100%;
   transition: opacity 0.5s ease-in-out;
 }
@@ -80,6 +130,7 @@ button:active {
 
 .profile {
   margin-left: 10px;
+  padding: 0px 10px 0px 10px;
   text-align: center;
   background-color: var(--off-white-block-background);
   border: var(--border-design);
@@ -243,6 +294,10 @@ h2 {
 
 /* footer stylings */
 
+footer {
+  margin-bottom: 0px;
+}
+
 footer p {
   display: inline-block;
 }
@@ -296,7 +351,8 @@ aside {
   align-items: center;
   justify-content: space-between;
   transform: translateX(0);
-  transition: all 0.5s ease-in-out;
+  opacity: 0%;
+  transition: all 2s ease-in-out;
 }
 
 .aside-header {
@@ -365,7 +421,7 @@ aside {
   margin-top: 20px;
 }
 
-label {
+.settings-form {
   display: block;
   width: fit-content;
   margin: auto;
@@ -381,19 +437,22 @@ select {
   margin: auto;
 }
 
-.setting-selections button {
+.setting-selections button,
+.intro-screen button {
   border: solid black 2px;
   margin: 30px auto 0px auto;
   width: 50%;
   display: block;
 }
 
-.setting-selections button:hover {
+.setting-selections button:hover,
+.intro-screen button:hover {
   border-width: 5px;
   background-color: rgb(173, 168, 168);
 }
 
-.setting-selections button:active {
+.setting-selections button:active,
+.intro-screen button:active {
   font-size: 1rem;
 }
 
@@ -488,12 +547,12 @@ select {
     font-size: 1.3rem;
   }
 
-  label {
+  .settings-form {
     font-size: 1.4rem;
     margin-top: 10px;
   }
 
-  select {
+  .settings-form select {
     font-size: 1.3rem;
     width: 80%;
   }
@@ -511,12 +570,20 @@ select {
   .setting-selections button:active {
     font-size: 1.2rem;
   }
+
+  .intro-screen {
+    font-size: 1.37rem;
+  }
+
+  .welcome-statement {
+    font-size: 3rem;
+  }
 }
 
 /* classes to be added and removed for page effects */
 .translate-away {
   transform: translate(100%);
-  transition: all 0.5s ease-in-out;
+  transition: all 4s ease-in-out;
 }
 
 .hide-element {
@@ -554,6 +621,16 @@ select {
 
 .decrease-opacity {
   opacity: 30%;
+}
+
+.fade-in {
+  opacity: 100%;
+  transition: all 1s ease-in-out;
+}
+
+.fade-out {
+  opacity: 0%;
+  transition: all 1s ease-in-out;
 }
 
 .strikethrough {

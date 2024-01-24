@@ -7,7 +7,6 @@
 /* universal stylings, stylings among element types, and html styling */
 
 html {
-  /* background: linear-gradient(to right, #2f000c, #fa2626); */
   font-family: 'Gloria Hallelujah', cursive;
   min-height: 100vh;
   background: rgb(0, 0, 0);
@@ -18,10 +17,13 @@ html {
   box-sizing: border-box;
 }
 
+/* general stylings for all img elemnts ----------*/
 img {
   border: var(--border-design);
   border-radius: var(--curvy-border);
 }
+
+/* general stylings for all buttons in the games ----*/
 
 button {
   font-family: 'Gloria Hallelujah', cursive;
@@ -43,21 +45,21 @@ button:active {
   font-size: large;
 }
 
-/* styling for the game containers */
+/* BASE STYLE FOR THE ENTIRE GAME CONTAINER--------- */
 .entire-container {
   display: flex;
-  height: 100%;
+  height: 100vh;
   width: auto;
   z-index: 1;
-  /* background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
-  background-size: 35%;
-  background-repeat: repeat-x;
-  background-position: cover; */
+  background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
+  background-size: 50%;
+  background-position: bottom;
 }
 
-/* styling for the intro screen*/
+/* styling for the intro and welcome screens-------- */
 
 .intro-screen {
+  position: relative;
   display: flex;
   align-items: center;
   height: 70vh;
@@ -70,6 +72,21 @@ button:active {
   border: solid rgb(84, 84, 84) 5px;
 }
 
+.intro-header {
+  position: absolute;
+  top: -11%;
+  left: 16%;
+  width: 70%;
+  font-size: 2.5rem;
+  text-align: center;
+  font-family: 'Pokemon Hollow', sans-serif;
+  padding: 8px;
+  background-color: var(--off-white-block-background);
+  border-radius: var(--curvy-border);
+  border: solid rgb(84, 84, 84) 5px;
+}
+
+/* styling for prof oak image */
 .prof-oak {
   height: 80%;
   width: auto;
@@ -77,6 +94,7 @@ button:active {
   display: block;
 }
 
+/* styling for text next to professor oak */
 .intro-screen-text {
   margin-left: 3%;
   margin-right: 2%;
@@ -88,7 +106,6 @@ button:active {
 }
 
 .intro-screen-forms {
-  /* display: block; */
   margin-right: 10px;
 }
 
@@ -98,10 +115,12 @@ button:active {
   margin: auto;
 }
 
+/* styling for the INITIAL statements that are displayed on the screen */
 .welcome-statement {
   font-size: 2.6rem;
 }
 
+/* GAME CONTAINER STYLINGS --------------------------------*/
 .game-container {
   width: 100%;
   min-width: 815px;
@@ -116,12 +135,12 @@ button:active {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  height: 50%
   margin-top: 10px;
   opacity: 100%;
   transition: opacity 0.5s ease-in-out;
 }
 
+/* profile pic in the top left corner */
 .profile-pic {
   width: 120px;
   height: auto;
@@ -137,6 +156,7 @@ button:active {
   border-radius: var(--curvy-border);
 }
 
+/*pokemon title header */
 header {
   display: flex;
   flex-direction: column;
@@ -161,12 +181,10 @@ h2 {
   margin-bottom: auto;
   margin-top: 5px;
   font-size: 1.5rem;
-  /* background-color: var(--off-white-block-background);
-  border: var(--border-design);
-  border-radius: var(--curvy-border);
-  border-width: 3px; */
   padding: 3px;
 }
+
+/* stylings for section on the top right corner wit the start button ------------------------------- */
 
 .game-prompt-container {
   display: flex;
@@ -189,9 +207,10 @@ h2 {
   font-size: 1rem;
 }
 
-/* stylings for the middle section of the page */
+/* ----Stylings for the middle section of the page ------*/
+
+/* backround of the middle section */
 .pokemon-image-container {
-  /* background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg'); */
   background: linear-gradient(
     to right,
     black 0%,
@@ -206,6 +225,8 @@ h2 {
   opacity: 100%;
   transition: opacity 0.5s ease-in-out;
 }
+
+/* actual pokemon image styling */
 .pokemon-image {
   background-color: var(--off-white-block-background);
   border-width: 10px;
@@ -225,6 +246,7 @@ h2 {
   transition: opacity 0.5s ease-in-out;
 }
 
+/* styling for the question box */
 .question {
   width: 60%;
   text-align: center;
@@ -236,6 +258,7 @@ h2 {
   background-color: var(--off-white-block-background);
 }
 
+/* styling for the container with all the answers */
 .answer-container {
   background: url('https://i.pinimg.com/564x/36/56/8a/36568a9268cc833b2b6f3fa858e23086.jpg');
   background-position: center;
@@ -266,6 +289,7 @@ h2 {
   font-size: 1.5rem;
 }
 
+/* question for the question level display on the top left corner of the answer container */
 .display-question-level {
   position: absolute;
   top: -15%;
@@ -292,7 +316,7 @@ h2 {
   text-align: center;
 }
 
-/* footer stylings */
+/* Footer stylings where it says "change theme"*/
 
 footer {
   margin-bottom: 0px;
@@ -321,7 +345,9 @@ footer p {
   cursor: pointer;
 }
 
-/* aside stylings */
+/* Stylings for the sidebar on the right side */
+
+/* styling for the button that displays and hides the sidebar */
 .toggle-aside {
   z-index: 3;
   position: absolute;
@@ -339,6 +365,7 @@ footer p {
   border-color: black;
 }
 
+/* actual stylings for the sidebar */
 aside {
   border-left: solid rgb(114, 113, 113) 2px;
   background: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
@@ -355,6 +382,7 @@ aside {
   transition: all 2s ease-in-out;
 }
 
+/* lifelines section*/
 .aside-header {
   background-color: var(--off-white-block-background);
   padding-left: 5px;
@@ -365,6 +393,7 @@ aside {
   margin-top: 10px;
 }
 
+/* styling for each lifeline button */
 .lifeline {
   background-color: var(--off-white-block-background);
   border-width: 4px;
@@ -374,6 +403,7 @@ aside {
   border-width: 12px;
 }
 
+/* styling for the different question levels */
 .question-levels {
   border: var(--border-design);
   border-radius: var(--curvy-border);
@@ -392,6 +422,7 @@ aside {
   border-bottom: none;
 }
 
+/* styling for the settings, instructions, reset game area */
 .bottom-button-container {
   margin-top: 30px;
 }
@@ -403,6 +434,7 @@ aside {
   border-width: 4px;
 }
 
+/* styling for the pop-up box in the middle of the screen when you click on the instructions or settings button */
 .pop-up-box {
   padding-left: 10px;
   padding-right: 10px;
@@ -417,6 +449,7 @@ aside {
   left: 18%;
 }
 
+/* stylings for the settings form in the pop-up */
 .setting-selections {
   margin-top: 20px;
 }
@@ -437,6 +470,7 @@ select {
   margin: auto;
 }
 
+/* stylings for buttons in the setting AND intro screen */
 .setting-selections button,
 .intro-screen button {
   border: solid black 2px;
@@ -456,6 +490,7 @@ select {
   font-size: 1rem;
 }
 
+/* styling for the X in the pop ups */
 .exit-button {
   position: absolute;
   top: 2%;
@@ -476,6 +511,7 @@ select {
   cursor: pointer;
 }
 
+/* styling for the "return to game" button */
 .return-to-game {
   display: block;
   width: fit-content;
@@ -492,7 +528,7 @@ select {
   font-size: 1rem;
 }
 
-/* media queries to accomodate for full-screen  */
+/*-------MEDIA QUERIES ------------------------------*/
 @media (min-width: 1375px) {
   .header-section {
     justify-content: space-around;
@@ -512,7 +548,8 @@ select {
   .question {
     font-size: 1.5rem;
   }
-  .display-question-level {
+  .display-question-level,
+  .timer {
     font-size: 1.2rem;
   }
   .answer {
@@ -547,6 +584,7 @@ select {
     font-size: 1.3rem;
   }
 
+  /* setting pop-up media queries  */
   .settings-form {
     font-size: 1.4rem;
     margin-top: 10px;
@@ -571,8 +609,9 @@ select {
     font-size: 1.2rem;
   }
 
+  /* intro screen media queries */
   .intro-screen {
-    font-size: 1.37rem;
+    font-size: 1.34rem;
   }
 
   .welcome-statement {
@@ -580,31 +619,33 @@ select {
   }
 }
 
-/* classes to be added and removed for page effects */
+/* ----HELPER CLASSES TO BE ADDED AND REMOVED FOR EFFECTS ---*/
+
+/* translates away the sidebar */
 .translate-away {
   transform: translate(100%);
   transition: all 4s ease-in-out;
 }
 
-.hide-element {
-  display: none;
-}
-
+/* highlights the current level in the level ladder in the sidebar */
 .current-level {
   background-color: #de9a8e;
   border: solid red 4px;
 }
 
+/* allows for disabling specific buttons and containers */
 .disable-button {
   cursor: none;
   pointer-events: none;
 }
 
+/* allows to disable ALL buttons or disable all buttons when needed (regardless of the state of the game */
 .disable-all {
   cursor: none;
   pointer-events: none;
 }
 
+/* for the answer box, when the player is playing */
 .yellow-background {
   background-color: #fff9c4;
 }
@@ -615,14 +656,17 @@ select {
   background-color: #ff0000;
 }
 
+/* hides an element */
 .display-none {
   display: none;
 }
 
+/* fades the background slightly when the pop-up shows up */
 .decrease-opacity {
   opacity: 30%;
 }
 
+/* fades in and out (used for the intro screen */
 .fade-in {
   opacity: 100%;
   transition: all 1s ease-in-out;
@@ -633,6 +677,7 @@ select {
   transition: all 1s ease-in-out;
 }
 
+/* strikes through for 50/50 lifeline */
 .strikethrough {
   text-decoration: line-through;
   background-color: rgb(228, 62, 62);

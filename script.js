@@ -11,6 +11,7 @@ let streakRecord = 0; //best record of the player
 let continuingStreak = false; //to describe the state of whether a play has an ongoing streak
 let userPokemonRange = 'oldschool'; //user's preference for the pokemon range
 let questionTypePreference = 'all'; //user's preference for the type of questions desired
+let currentTimer = null;
 let playerTag = '';
 let playerName = '';
 
@@ -34,6 +35,7 @@ const introScreenFormHTML = document.querySelector(
 const instructionsHTML = document.querySelector('.pop-up-box').innerHTML;
 const settingsHTML = document.querySelector('.settings-HTML').innerHTML;
 document.querySelector('.settings-HTML').remove(); //removed this node to prevent multiple elements from having the same IDs
+document.querySelector('.intro-screen-form-HTML').remove();
 //---SECTION 2A: CLASSES and OBJECTS -------------------------------------------------
 
 //BASE QUESTION CLASS------
@@ -413,6 +415,27 @@ async function makePokemonDataArray(pokemonIDarr) {
   }
 }
 
+//function prepares all questions based on the results of the asynchronous functions above
+function prepareAllGameQuestions(pokemonRange, typePreference) {
+  lifelines.classList.add('disable-button');
+  setPokemonNumIDArr(pokemonRange);
+  makePokemonDataArray(pokemonNumIDArr)
+    .then(pokemonDataValues => {
+      globalPokeData = [...pokemonDataValues];
+      console.log(globalPokeData);
+      setPokemonQuestionsArr(typePreference);
+      setTimeout(() => {
+        gamePromptContainer.classList.remove('disable-button');
+        gamePrompt.textContent = 'QUESTIONS LOADED! CLICK THE BUTTON TO PLAY!';
+      }, 400);
+    })
+    .catch(() =>
+      alert(
+        'Error with fetching Pokemon data. Please re-load the page or press the "reset game" button and try again.'
+      )
+    );
+}
+
 //----ALL QUERY SELECTORS FOR DOM MANIPULATION -------------------------------------
 const headerSection = document.querySelector('.header-section');
 const profile = document.querySelector('.profile');
@@ -431,11 +454,11 @@ const bottomButtonsinAside = document.querySelector('.bottom-button-container');
 const colorContainer = document.querySelector('.color-container');
 const displayInstructions = document.querySelector('.display-instructions');
 const popUpBox = document.querySelector('.pop-up-box');
-const exitButton = document.querySelector('.exit-button');
 const settings = document.querySelector('.settings');
 const gameContainer = document.querySelector('.game-container');
 const entireContainer = document.querySelector('.entire-container');
 const profilePic = document.querySelector('.profile-pic');
+const timerElement = document.querySelector('.timer');
 //
 
 function insertButton(buttonText, buttonClass) {
@@ -445,6 +468,39 @@ function insertButton(buttonText, buttonClass) {
   style="display: block; width: fit-content; margin: auto; padding-left: 5px; padding-right 5px; font-size: 1.1rem; margin-top: 5px;" class = "inserted-button ${buttonClass}"
 >${buttonText}</button>`
   );
+}
+
+function startCountdownTimer() {
+  let count = 30;
+  timerElement.textContent = `TIME REMAINING: ${count}`;
+  let thisTimer = setInterval(() => {
+    count--;
+    timerElement.textContent = `TIME REMAINING: ${count}`;
+    console.log(count);
+    if (count === 0) {
+      console.log(`It's done`);
+      loseFromTimeOut();
+    }
+  }, 1000);
+  currentTimer = thisTimer;
+}
+
+function loseFromTimeOut() {
+  const currentPokeQuestion = pokemonQuestionsArr[currentQuestionNum - 1];
+  const correctAnswerObj = currentPokeQuestion.answers.find(
+    answer => answer.isCorrect
+  );
+  const correctAnswerBox = document.querySelector(
+    `.ans${correctAnswerObj.answerNumber}`
+  );
+  correctAnswerBox.classList.add('green-background');
+  updateAndRenderStreak();
+  questionBox.textContent = `RAN OUT OF TIME, TRAINER! Gotta be faster next time! Current Streak was ${currentStreak}. Record Streak: ${streakRecord}`;
+  currentStreak = 0;
+  continuingStreak = false;
+  insertButton('Play Again?', 'play-again');
+  clearInterval(currentTimer);
+  currentTimer = null;
 }
 
 function renderQuestionAndAnswers() {
@@ -466,7 +522,8 @@ function renderQuestionAndAnswers() {
     answerBox.textContent = answerObj.answer;
   });
   gamePromptContainer.classList.add('disable-button');
-  answerContainer.classList.toggle('disable-button');
+  answerContainer.classList.remove('disable-button');
+  startCountdownTimer();
 }
 
 function renderWinScreen() {
@@ -485,17 +542,9 @@ function updateAndRenderStreak() {
 toggleAside.addEventListener('click', function () {
   aside.classList.toggle('translate-away');
   setTimeout(() => {
-    aside.classList.toggle('hide-element');
+    aside.classList.toggle('display-none');
   }, 450);
 });
-
-// toggleAside.addEventListener('mouseenter', function (e) {
-//   toggleAside.style.backgroundColor = '#de9a8e';
-// });
-
-// toggleAside.addEventListener('mouseleave', function (e) {
-//   toggleAside.style.backgroundColor = 'var(--off-white-block-background)';
-// });
 
 gamePromptContainer.addEventListener('click', function (e) {
   if (e.target.tagName === 'BUTTON') {
@@ -527,7 +576,8 @@ answerContainer.addEventListener('click', function (e) {
   if (e.target.tagName === 'BUTTON') {
     //backgroundColor is yellow to notify that the person chose the answer and is pending a response...
     e.target.classList.add('yellow-background');
-
+    clearInterval(currentTimer);
+    currentTimer = null;
     //setTimeOut for dramatic effect
     setTimeout(() => {
       e.target.classList.remove('yellow-background');
@@ -552,7 +602,7 @@ answerContainer.addEventListener('click', function (e) {
         e.target.classList.add('red-background');
         correctAnswerBox.classList.add('green-background');
         updateAndRenderStreak(); //updates and renders streak to the player's profile in preparation for the end of the game
-        questionBox.textContent = `INCORRECT! Sorry about that, trainer... Press "Play Again" to play with different questions! Current Streak was ${currentStreak}. Record Streak: ${streakRecord}`; //prompts user that game is over
+        questionBox.textContent = `INCORRECT! Sorry about that, ${playerName}... Press "Play Again" to play with different questions! Current Streak was ${currentStreak}. Record Streak: ${streakRecord}`; //prompts user that game is over
         currentStreak = 0; //resets streak
         continuingStreak = false; //indicates that the player is no longer holding a streak
         insertButton('Play Again?', 'play-again'); //provides the player the option to play again if desired.
@@ -577,11 +627,12 @@ bottomSection.addEventListener('click', function (e) {
   } else if (e.target.classList.contains('play-again')) {
     if (continuingStreak) {
       resetGame(
-        `You're doing amazing, trainer! The sky is the limit! Click on the start button on the top right to start again!`
+        `You're doing amazing, ${playerName}! Can you keep on going? Click on the start button on the top right to start again!`,
+        true
       );
     } else {
       resetGame(
-        'Good on you, for trying the game out again, trainer! Good luck this time! Click on the start button when questions are loaded to start again. '
+        `Good on you, for trying the game out again, ${playerName}! Good luck this time! Click on the start button when questions are loaded to start again. `
       );
     }
   }
@@ -607,7 +658,7 @@ bottomButtonsinAside.addEventListener('click', function (e) {
         insertedButton.remove();
       }
       resetGame(
-        'The game will be reset! Enjoy your new questions, trainer! Click the start button to begin again!'
+        `The game will be reset! Enjoy your new questions, ${playerName}! Click the start button to begin again!`
       );
       return;
     } else if (alteredInput === 'no') {
@@ -616,7 +667,7 @@ bottomButtonsinAside.addEventListener('click', function (e) {
   }
 });
 
-function resetGame(message) {
+function resetGame(message, playerWon = false) {
   const answers = document.querySelectorAll('.answer');
   const levels = document.querySelectorAll('.level');
   const playAgain = document.querySelector('.play-again');
@@ -624,8 +675,15 @@ function resetGame(message) {
   globalPokeData.length = 0; //clear pokedata array
   pokemonNumIDArr.length = 0; //clear pokemonNum ID array
   pokemonQuestionsArr.length = 0; //clear pokeQuestions array
-  currentStreak = 0;
-  continuingStreak = false;
+  if (currentTimer) {
+    clearInterval(currentTimer);
+    currentTimer = null;
+  }
+  timerElement.textContent = 'Timer will be here!';
+  if (!playerWon) {
+    currentStreak = 0;
+    continuingStreak = false;
+  }
   questionBox.textContent = message;
   displayQLevel.textContent = 'Question Level will go here!';
   answers.forEach((answer, i) => {
@@ -776,26 +834,6 @@ function setPokemonQuestionsArr(preference) {
   console.log(pokemonQuestionsArr);
 }
 
-function prepareAllGameQuestions(pokemonRange, typePreference) {
-  setPokemonNumIDArr(pokemonRange);
-  lifelines.classList.add('disable-button');
-  makePokemonDataArray(pokemonNumIDArr)
-    .then(pokemonDataValues => {
-      globalPokeData = [...pokemonDataValues];
-      console.log(globalPokeData);
-      setPokemonQuestionsArr(typePreference);
-      setTimeout(() => {
-        gamePromptContainer.classList.remove('disable-button');
-        gamePrompt.textContent = 'QUESTIONS LOADED! CLICK THE BUTTON TO PLAY!';
-      }, 400);
-    })
-    .catch(() =>
-      alert(
-        'Error with fetching Pokemon data. Please re-load the page or press the "reset game" button and try again.'
-      )
-    );
-}
-
 function fadeOrBrightenBackGrnd() {
   headerSection.classList.toggle('decrease-opacity');
   pokemonImgContainer.classList.toggle('decrease-opacity');
@@ -841,6 +879,7 @@ popUpBox.addEventListener('click', function (e) {
     reactivateAllButtons();
   }
   if (e.target.classList.contains('submit-settings')) {
+    e.preventDefault();
     const settingsRange = document.querySelector('#settings-range');
     const settingsQuestionType = document.querySelector(
       '#settings-question-type'
@@ -873,6 +912,8 @@ lifelines.addEventListener('click', function (e) {
   }
 
   if (e.target.classList.contains('change-question')) {
+    clearInterval(currentTimer);
+    currentTimer = null;
     let newQuestion = {};
     if (currentQuestionNum <= 3) {
       newQuestion = new pictureQuestion(globalPokeData.at(-1));
@@ -906,9 +947,13 @@ function wait(seconds) {
 const introScreen = document.querySelector('.intro-screen');
 const introScreenText = document.querySelector('.intro-screen-text');
 
+//NOTE THE BELOW CODE GIVES THE EFFECT OF TEXT FADING IN AND OUT DURING THE INTRO SCREEN
 //fade in the orginal
-introScreenText.classList.add('fade-in');
-wait(1.5) //wait 1.5 seconds, then fade out to show the next message
+wait(1)
+  .then(() => {
+    introScreenText.classList.add('fade-in');
+    return wait(2);
+  })
   .then(() => {
     introScreenText.classList.add('fade-out');
     introScreenText.classList.remove('fade-in');
@@ -931,7 +976,7 @@ wait(1.5) //wait 1.5 seconds, then fade out to show the next message
       '<p class="welcome-statement">You will be given 15 questions to answer per round! Questions can range from identifying Pokemon images, Pokemon types, Pokemon abilities, and MORE!</p>';
     introScreenText.classList.add('fade-in');
     introScreenText.classList.remove('fade-out');
-    return wait(2);
+    return wait(3.5);
   })
   .then(() => {
     introScreenText.classList.add('fade-out');
@@ -943,7 +988,7 @@ wait(1.5) //wait 1.5 seconds, then fade out to show the next message
       '<p class="welcome-statement">You will be tested on all Pokemon spanning multiple generations! And plus, each test will always be different!</p>';
     introScreenText.classList.add('fade-in');
     introScreenText.classList.remove('fade-out');
-    return wait(2);
+    return wait(3);
   })
   .then(() => {
     introScreenText.classList.add('fade-out');
@@ -959,7 +1004,7 @@ wait(1.5) //wait 1.5 seconds, then fade out to show the next message
   .then(() => {
     introScreenText.classList.add('fade-out');
     introScreenText.classList.remove('fade-in');
-    return wait(1);
+    return wait(0.5);
   })
   .then(() => {
     introScreenText.innerHTML = introScreenFormHTML;
@@ -967,11 +1012,13 @@ wait(1.5) //wait 1.5 seconds, then fade out to show the next message
     introScreenText.classList.remove('fade-out');
   })
   .catch(err => {
-    console.log(err.message);
+    alert('Problems with loading the page. Please re-load the game.');
   });
 
+//ADDS LOGIC TO WHEN THE SUBMIT BUTTON ON THE FORM IS PRESENTED
 introScreen.addEventListener('click', function (e) {
   if (e.target.tagName === 'BUTTON') {
+    e.preventDefault();
     const inputtedTag = document.querySelector('#trainer-tag');
     const inputtedName = document.querySelector('#intro-name-form');
     const inputtedIcon = document.querySelector('#trainer-icon');
@@ -985,7 +1032,7 @@ introScreen.addEventListener('click', function (e) {
     console.log(profilePic.src);
     profile.innerHTML = ` ${playerTag} <br/> ${playerName}`;
     resetGame(
-      'Welcome trainer! Please click on the start button on the top right corner to begin your game! Be sure to read the instructions in the sidebar before you play. You may change settings via the button in the sidebar on the right. Good luck! -Prof Oak'
+      `Welcome ${playerName}! Please click on the start button on the top right corner to begin your game! Be sure to read the instructions in the sidebar before you play. You may change settings via the button in the sidebar on the right. Good luck! -Prof Oak`
     );
     wait(0)
       .then(() => {
@@ -997,24 +1044,26 @@ introScreen.addEventListener('click', function (e) {
         introScreenText.innerHTML = `<p class="welcome-statement"> You'll do great, ${playerName}. Go for the longest streak you can! The sky is the limit!`;
         introScreenText.classList.add('fade-in');
         introScreenText.classList.remove('fade-out');
-        return wait(2);
+        return wait(3);
       })
       .then(() => {
         introScreen.classList.add('fade-out');
-        return wait(0.5);
+        return wait(1);
       })
       .then(() => {
         introScreen.style.display = 'none';
-        return wait(2);
+        return wait(1);
       })
       .then(() => {
+        entireContainer.style.background = 'black';
+        entireContainer.style.height = '100%';
         gameContainer.classList.remove('display-none');
         aside.classList.remove('display-none');
         gameContainer.classList.add('fade-in');
         aside.classList.add('fade-in');
       })
-      .catch(err => {
-        console.log(err.message);
+      .catch(() => {
+        alert('Problems with loading the page. Please re-load the game.');
       });
   }
 });
@@ -1022,9 +1071,7 @@ introScreen.addEventListener('click', function (e) {
 //-----CODE EXECUTION WITH THE INTRO SCREEN----------------
 
 //TO DO:
-// (1) Finish the timer, add the header to the intro screen! (Maybe add variables to local storage?), embed music?
 // (2) Clean up code
 // (3) Add comments at the appropriate spots
-// (4) Save and store your images for your project in the images folder and re-route your photos accordingly!
-// (5) Deploy your project (on Github!)
-// (6) Turn in the project!
+// (4) Deploy your project (on Github!)
+// (5) Turn in the project!

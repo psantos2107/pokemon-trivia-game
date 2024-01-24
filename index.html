@@ -23,72 +23,13 @@
   </head>
   <body class="entire-container">
     <section class="intro-screen">
-      <img
-        class="prof-oak"
-        src="https://i.pinimg.com/564x/da/71/d9/da71d986ece418cfd37160c36edf5ad2.jpg"
-      />
+      <h2 class="intro-header">WELCOME TO POKEMON TRIVIA!</h2>
+      <img class="prof-oak" src="./imgs/profOakIntro.jpg" />
       <article class="intro-screen-text">
         <p class="welcome-statement">
           Hello there trainer! My name is Professor Oak! I welcome you to the
           land of POKEMON!
         </p>
-        <!-- <p>
-          Before we get started, please fill out this form! Please input your
-          name, trainer tag, and profile picture. Afterwards, you may choose the
-          type of questions and range of Pokemon you want to be tested on! NOTE:
-          You can change these question preferences later in "Settings". Hit
-          submit when you're done!
-        </p>
-        <form class="intro-screen-forms">
-          <label for="trainer-tag">Trainer Tag:</label>
-          <input type="text" id="trainer-tag" name="intro-tag" />
-        </form>
-        <form class="intro-screen-forms">
-          <label for="intro-name-form">Name:</label>
-          <input type="text" id="intro-name-form" name="intro-name" />
-        </form>
-        <form class="intro-screen-forms">
-          <label for="trainer-icon"
-            >Which would like to have as your profile picture?</label
-          >
-          <select id="trainer-icon" name="trainer-icon">
-            <option value="boy">Cooltrainer Male</option>
-            <option value="girl">Cooltrainer Female</option>
-            <option value="eevee">Cute Eevee</option>
-            <option value="gardevoir">Glamorous Gardevoir</option>
-            <option value="snorlax">Sleepy Snorlax</option>
-          </select>
-        </form>
-        <form class="intro-screen-forms">
-          <label for="intro-screen-range"
-            >Which Pokemon would you like to be tested on?</label
-          >
-          <select id="intro-screen-range" name="intro-range">
-            <option value="oldschool">
-              Pokemon from Kanto to Sinnoh Region
-            </option>
-            <option value="newschool">
-              Pokemon from Unova to Alola Region
-            </option>
-            <option value="all">All Pokemon from Kanto to Alola Region</option>
-          </select>
-        </form>
-        <form class="intro-screen-forms">
-          <label for="intro-question-type"
-            >What type of questions would you like to be given?</label
-          >
-          <select id="intro-question-type" name="intro-question-type">
-            <option value="all">All Types of Questions!</option>
-            <option value="picture">Picture Questions Only!</option>
-            <option value="type">Type Questions Only!</option>
-            <option value="abilities">Ability Questions Only!</option>
-            <option value="stats">Base Stat Questions Only!</option>
-            <option value="height-and-weight">
-              Height & Weight Questions Only!
-            </option>
-          </select>
-        </form>
-        <button class="intro-submit">SUBMIT</button> -->
       </article>
     </section>
     <main class="game-container display-none">
@@ -167,12 +108,11 @@
           <figure class="profile-container">
             <img
               class="profile-pic"
-              src="https://i.pinimg.com/564x/52/ec/fe/52ecfe9c048d7fbdacb73337cc98cff9.jpg"
-              data-female="https://i.pinimg.com/564x/52/ec/fe/52ecfe9c048d7fbdacb73337cc98cff9.jpg"
-              data-male="https://i.pinimg.com/564x/cf/1b/12/cf1b12b2a7f162277c474b0c7ce23134.jpg"
-              data-eevee="https://i.pinimg.com/564x/65/14/e2/6514e2ade7ba2eddff40960d1ec8f507.jpg"
-              data-gardevoir="https://i.pinimg.com/564x/9a/21/39/9a2139507e5c5b669efccb47a489a9bb.jpg"
-              data-snorlax="https://i.pinimg.com/564x/04/27/c8/0427c8203ac6ea9de9645e6379634aef.jpg"
+              data-female="./imgs/cooltrainerFemale.jpg"
+              data-male="./imgs/cooltrainerMale.jpg"
+              data-eevee="./imgs/eevee.jpg"
+              data-gardevoir="./imgs/gardevoir.jpg"
+              data-snorlax="./imgs/snorlax.jpg"
             />
             <p class="profile">
               Cooltrainer <br />
@@ -190,12 +130,7 @@
         </div>
       </section>
       <figure class="pokemon-image-container">
-        <img
-          class="pokemon-image"
-          src="https://i.pinimg.com/564x/a4/7d/0e/a47d0e060feb0c946a612ffa5c4ee674.jpg"
-          data-oak="https://i.pinimg.com/564x/cc/30/2b/cc302b79c8333b4e30dd37cbeaf3645e.jpg"
-          data-pikachu="https://i.pinimg.com/564x/a4/7d/0e/a47d0e060feb0c946a612ffa5c4ee674.jpg"
-        />
+        <img class="pokemon-image" data-oak="./imgs/profOakTalking.jpg" />
       </figure>
       <section class="bottom-section">
         <p class="question">
@@ -204,7 +139,7 @@
         </p>
         <div class="answer-container disable-button">
           <div class="display-question-level">Question Number/Level</div>
-          <div class="timer">Timer</div>
+          <div class="timer">Timer will be here!</div>
           <button class="answer ans1" data-num="1">Answer A</button>
           <button class="answer ans2" data-num="2">Answer B</button>
           <button class="answer ans3" data-num="3">Answer C</button>
@@ -338,11 +273,12 @@
     </div>
     <div class="intro-screen-form-HTML display-none">
       <p>
-        Before we get started, please fill out this form! Please input your
-        name, trainer tag, and profile picture. Afterwards, you may choose the
+        Before we get started, please submit this form! Please input your name,
+        trainer tag, and profile picture. Your trainer tag is like a title. As
+        an example, if your trainer tag is "Swimmer" and your name is "Paul",
+        your profile name will be "Swimmer Paul". Afterwards, you may choose the
         type of questions and range of Pokemon you want to be tested on! NOTE:
-        You can change these question preferences later in "Settings". Hit
-        submit when you're done!
+        You can change these question preferences later in "Settings".
       </p>
       <form class="intro-screen-forms">
         <label for="trainer-tag">Trainer Tag:</label>

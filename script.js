@@ -564,7 +564,7 @@ function prepareAllGameQuestions(pokemonRange, typePreference) {
   setPokemonNumIDArr(pokemonRange); //creates an array of pokemon IDs based on the user's input
   makePokemonDataArray(pokemonNumIDArr) //then, based on the IDs, you fetch all of the pokemon data and store them in an array
     .then(pokemonDataValues => {
-      globalPokeData = [...pokemonDataValues]; //stores the fulfilled of the async function into the global variable
+      globalPokeData = [...pokemonDataValues]; //stores the array of fetched data of the async function into the global variable
       console.log(globalPokeData);
       setPokemonQuestionsArr(typePreference); //then, after the data is stored, you create the questions (based on the user input)
       setTimeout(() => {
@@ -811,7 +811,11 @@ answerContainer.addEventListener('click', function (e) {
       if (chosenAnswerObj.isCorrect) {
         e.target.classList.add('green-background'); //to signify if someone is correct
         currentStreak++; //increment streak of questions
-        confetti(); //throws confetti to congratulate the player (imported from an external library)
+        confetti({
+          angle: 100,
+          particleCount: 100,
+          spread: 60,
+        }); //throws confetti to congratulate the player (imported from an external library)
 
         //if the player is at the last question, render the win screen and exit the function
         if (currentQuestionNum === pokemonQuestionsArr.length) {

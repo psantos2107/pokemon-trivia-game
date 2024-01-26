@@ -44,6 +44,14 @@ _Limitations/Hurdles_
 
 - **Fetching and Storing Pokemon Data from API**: Extensive research was done to figure out how to draw data from the PokeAPI and do it efficiently to use for the Pokemon questions. Eventually, use of fetch() and Promise.allSettled() were implemented in order to successfully accomplish this goal.
 
+## Plans for Future Expansion/ Further Stretch Goals:
+
+-Utilize localStorage so that the user won't have to encounter the intro screen at every re-load of the page.
+
+-Add more features (more profile pictures, more question types, more "achievements", more versatility with settings)
+
+-Create a mobile friendly layout that will adapt to phone screens
+
 ## References:
 
 -[PokeAPI](https://pokeapi.co/): for info on the API where Pokemon data was drawn from

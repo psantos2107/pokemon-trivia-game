@@ -51,7 +51,7 @@ button:active {
   height: 100vh;
   width: auto;
   z-index: 1;
-  background-image: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
+  background-image: url('./imgs/pokeBackground.jpg');
   background-size: 50%;
   background-position: bottom;
 }
@@ -268,7 +268,7 @@ h2 {
 
 /* styling for the container with all the answers */
 .answer-container {
-  background: url('https://i.pinimg.com/564x/36/56/8a/36568a9268cc833b2b6f3fa858e23086.jpg');
+  background: url('./imgs/pokeBall.jpg');
   background-position: center;
   background-repeat: no-repeat;
   background-size: 20%;
@@ -376,7 +376,7 @@ footer p {
 /* actual stylings for the sidebar */
 aside {
   border-left: solid rgb(114, 113, 113) 2px;
-  background: url('https://i.pinimg.com/564x/83/4a/e6/834ae6f7dd2abb56489dde20e15d1d8c.jpg');
+  background: url('./imgs/pokeBackground.jpg');
   background-size: contain;
   width: 20%;
   min-height: 100vh;

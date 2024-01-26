@@ -32,11 +32,13 @@ Link: https://psantos2107.github.io/pokemon-trivia-game/
 
 To utilize the code for this project, simply clone this repository and open the index.html file. No additional packages are needed for installation.
 
-## Challenges/Unsolved Problems
+## Challenges and Problems
 
 _Limitations/Hurdles_
 
 - **Project Responsiveness**: The current project is only meant for the browser. Implementations for the application to be mobile friendly was not considered for this project. However, work to make the project more responsive will be worked on later on.
+
+- **CSS Code**: I particularly struggled a lot with how to organize my CSS code so that it is easy to follow if people decide to clone the project. Also, I was having trouble with making sure that my project fit the viewport so that players wouldn't have to scroll. Writing efficient CSS and avoiding redundant CSS was also a major hurdle.
 
 - **"This" Keyword**: There were some problems regarding what "this" was referencing to at different points in the project, especially when passing functions to other functions, resulting in some bugs throughout development. It was resolved by using "bind()" to attach a specific object to the "this" keyword when passing functions into other functions within the question subclasses.
 

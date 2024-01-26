@@ -1,8 +1,8 @@
 # Pokemon-Trivia-Game
 
-![Intro Screen with Professor Oak](./imgs/profOakGameScreenshot.png 'Professor Oak introduction screen')
+![Intro Screen with Professor Oak](./imgs/ProfOakGameScreenshot.png 'Professor Oak introduction screen')
 
-![Trivia Game snapshot](./imgs/triviaGameScreenshot.png 'Trivia Game Snapshot')
+![Trivia Game snapshot](./imgs/TriviaGameScreenshot.png 'Trivia Game Snapshot')
 
 ![Settings snapshot](./imgs/settingScreenshot.png 'Settings snapshot')
 
@@ -32,10 +32,6 @@ Link: https://psantos2107.github.io/pokemon-trivia-game/
 
 To utilize the code for this project, simply clone this repository and open the index.html file. No additional packages are needed for installation.
 
-## Wireframes
-
-Link to wireframes [here](./imgs/wireframe.pdf)
-
 ## Challenges/Unsolved Problems
 
 _Limitations/Hurdles_
@@ -48,7 +44,10 @@ _Limitations/Hurdles_
 
 ## References:
 
-[PokeAPI](https://pokeapi.co/) - for info on the API where Pokemon data was drawn from
-[Pokemon Hollow Font](https://www.cdnfonts.com/pokemon-hollow.font) - link to where the Pokemon Hollow Font was drawn from
-[Font Awesome](https://fontawesome.com/) - link where all icons in the game were drawn from.
-[Confetti](https://www.skypack.dev/view/canvas-confetti) - link to documentation of the confetti function, from which the confetti animation was imported
+-[PokeAPI](https://pokeapi.co/): for info on the API where Pokemon data was drawn from
+
+-[Pokemon Hollow Font](https://www.cdnfonts.com/pokemon-hollow.font): link to where the Pokemon Hollow Font was drawn from
+
+-[Font Awesome](https://fontawesome.com/): link where all icons in the game were drawn from.
+
+-[Confetti](https://www.skypack.dev/view/canvas-confetti): link to documentation of the confetti function, from which the confetti animation was imported

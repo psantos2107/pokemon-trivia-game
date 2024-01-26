@@ -704,15 +704,16 @@ function resetGame(message, playerWon = false) {
   globalPokeData.length = 0; //clear pokedata array
   pokemonNumIDArr.length = 0; //clear pokemonNum ID array
   pokemonQuestionsArr.length = 0; //clear pokeQuestions array
-  if (currentTimer) {
+  if (currentTimer) { //resets timer
     clearInterval(currentTimer);
     currentTimer = null;
   }
   timerElement.textContent = 'Timer will be here!';
-  if (!playerWon) {
+  if (!playerWon) { //resets streak
     currentStreak = 0;
     continuingStreak = false;
   }
+  //update UI (question box, backgrounds for all answers, etc)
   questionBox.textContent = message;
   displayQLevel.textContent = 'Question Level will go here!';
   answers.forEach((answer, i) => {
@@ -722,12 +723,16 @@ function resetGame(message, playerWon = false) {
     answer.classList.remove('green-background');
     answer.classList.remove('strikethrough');
   });
+  //reset the levels in the sidebar
   levels.forEach(level => {
     level.classList.remove('current-level');
   });
-  pokeImage.src = pokeImage.dataset.oak;
+  //display picture of oak
+  pokeImage.src = pokeImage.dataset.oak; 
   gamePrompt.textContent = 'LOADING NEW QUESTIONS! PLEASE WAIT...';
+  //re-prepare all the questions to produce new questions
   prepareAllGameQuestions(userPokemonRange, questionTypePreference);
+  //remove the playAgain button if it's present
   if (playAgain) {
     playAgain.remove();
   }
@@ -741,6 +746,7 @@ function renderWinScreen() {
   insertButton('Play Again?', 'play-again'); //inserts the play again buton
 }
 
+//fades in or out the entire background/game container
 function fadeOrBrightenBackGrnd() {
   const pokemonImgContainer = document.querySelector(
     '.pokemon-image-container'
@@ -750,6 +756,7 @@ function fadeOrBrightenBackGrnd() {
   bottomSection.classList.toggle('decrease-opacity');
 }
 
+//deactivates all buttons at once (if the settings or instructions button is presssed)
 function deactivateAllButtons() {
   lifelines.classList.add('disable-all');
   bottomButtonsinAside.classList.add('disable-all');
@@ -757,6 +764,7 @@ function deactivateAllButtons() {
   gamePromptContainer.classList.add('disable-all');
 }
 
+//reactivates all buttons at once 
 function reactivateAllButtons() {
   lifelines.classList.remove('disable-all');
   bottomButtonsinAside.classList.remove('disable-all');

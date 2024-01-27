@@ -704,12 +704,14 @@ function resetGame(message, playerWon = false) {
   globalPokeData.length = 0; //clear pokedata array
   pokemonNumIDArr.length = 0; //clear pokemonNum ID array
   pokemonQuestionsArr.length = 0; //clear pokeQuestions array
-  if (currentTimer) { //resets timer
+  if (currentTimer) {
+    //resets timer
     clearInterval(currentTimer);
     currentTimer = null;
   }
   timerElement.textContent = 'Timer will be here!';
-  if (!playerWon) { //resets streak
+  if (!playerWon) {
+    //resets streak
     currentStreak = 0;
     continuingStreak = false;
   }
@@ -728,7 +730,7 @@ function resetGame(message, playerWon = false) {
     level.classList.remove('current-level');
   });
   //display picture of oak
-  pokeImage.src = pokeImage.dataset.oak; 
+  pokeImage.src = pokeImage.dataset.oak;
   gamePrompt.textContent = 'LOADING NEW QUESTIONS! PLEASE WAIT...';
   //re-prepare all the questions to produce new questions
   prepareAllGameQuestions(userPokemonRange, questionTypePreference);
@@ -764,7 +766,7 @@ function deactivateAllButtons() {
   gamePromptContainer.classList.add('disable-all');
 }
 
-//reactivates all buttons at once 
+//reactivates all buttons at once
 function reactivateAllButtons() {
   lifelines.classList.remove('disable-all');
   bottomButtonsinAside.classList.remove('disable-all');
@@ -1052,7 +1054,9 @@ lifelines.addEventListener('click', function (e) {
       default:
         break;
     }
-
+    //in case the player used the 50/50 prior to changing the question, this removes all strikethroughs in the answer element boxes as to avoid confusion when the question is changed
+    const answers = document.querySelectorAll('.answer');
+    answers.forEach(answer => answer.classList.remove('strikethrough'));
     pokemonQuestionsArr.splice(currentQuestionNum - 1, 1, newQuestion); //replace the question in the pokemonQuestionArr with the new question
     currentQuestionNum--; //to ensure that when the quesiton is switched, the player is still on the same question number
     answerContainer.classList.add('disable-button'); //disables the answer container (because the renderQuestionAndAnswers function will remove it anyways)

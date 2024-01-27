@@ -61,3 +61,7 @@ _Limitations/Hurdles_
 -[Font Awesome](https://fontawesome.com/): link where all icons in the game were drawn from.
 
 -[Confetti](https://www.skypack.dev/view/canvas-confetti): link to documentation of the confetti function, from which the confetti animation was imported
+
+-[Gloria Hallelujah Font](https://fonts.google.com/specimen/Gloria+Hallelujah): link to the Gloria Hallelujah Font, which is the primary font style used throughout the project.
+
+-[Div Border Stylings](https://speckyboy.com/css-border-effects/)- link to the site where the curvy border stylings were drawn from. Refer to the "A Hand Drawn Look" section of the page for reference.

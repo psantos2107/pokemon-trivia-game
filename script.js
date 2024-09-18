@@ -433,13 +433,12 @@ async function getSinglePokeData(num) {
 //the function grabs all of the single pokemon data fetches, runs them in parallel, and then stores that data in the global variable, globalPokeData
 async function makePokemonDataArray(pokemonIDarr) {
   try {
-    //preps an array of promises to be passed to Promise.allsettled
+    //preps an array of promises to be passed to Promise.allsettled. all elements will continue promises for a single pokemon data
     const promiseArray = pokemonIDarr.map(function (pokemonID) {
       return getSinglePokeData(pokemonID);
     });
     //runs all 30 promises in parallel for efficiency
     const globalPokeData = await Promise.allSettled(promiseArray);
-    //maps the value property of all the success vales of the 30 promises to be returned as an array of pokemon data derived from the fulfilled promises
     const pokemonDataValues = globalPokeData.map(pokeData => pokeData.value);
     return pokemonDataValues;
   } catch {

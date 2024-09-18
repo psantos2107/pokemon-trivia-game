@@ -52,6 +52,18 @@ _Limitations/Hurdles_
 
 -Create a mobile friendly layout that will adapt to phone screens
 
+## License:
+
+Distributed under the MIT License. See [LICENSE.md] for more information.
+
+## Contact:
+
+-Name: Paul Santos
+
+-Email: paul.santos2107@gmail.com
+
+-LinkedIn: https://www.linkedin.com/in/paul-santos-502312257/
+
 ## References:
 
 -[PokeAPI](https://pokeapi.co/): for info on the API where Pokemon data was drawn from
